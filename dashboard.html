@@ -225,12 +225,12 @@
             <div class="bg-white bg-opacity-10 rounded-xl p-4 mb-6">
                 <div class="flex items-center space-x-3">
                     <div class="user-avatar relative">
-                        <span>SA</span>
+                        <span id="userInitials">TU</span>
                         <div class="status-indicator"></div>
                     </div>
                     <div>
-                        <div class="font-semibold text-white">Sarah Ahmed</div>
-                        <div class="text-xs text-blue-200">Explorer Level</div>
+                        <div class="font-semibold text-white" id="userName">Tunisia Explorer</div>
+                        <div class="text-xs text-blue-200" id="userLevel">Explorer Level</div>
                     </div>
                 </div>
             </div>
@@ -571,7 +571,7 @@
                                     <p class="text-sm text-gray-500">Join us for an evening of Tunisian music, food, and culture sharing.</p>
                                     <div class="flex items-center justify-between mt-3">
                                         <span class="text-xs text-gray-500">24 attending</span>
-                                        <button class="btn-secondary px-3 py-1 rounded-lg text-sm">Join Event</button>
+                                        <button class="btn-secondary px-3 py-1 rounded-lg text-sm join-event">Join Event</button>
                                     </div>
                                 </div>
                             </div>
@@ -588,7 +588,7 @@
                                     <p class="text-sm text-gray-500">Learn to make authentic couscous and brik with a local chef.</p>
                                     <div class="flex items-center justify-between mt-3">
                                         <span class="text-xs text-gray-500">18 attending</span>
-                                        <button class="btn-secondary px-3 py-1 rounded-lg text-sm">Join Event</button>
+                                        <button class="btn-secondary px-3 py-1 rounded-lg text-sm join-event">Join Event</button>
                                     </div>
                                 </div>
                             </div>
@@ -605,7 +605,7 @@
                                     <p class="text-sm text-gray-500">Virtual photo walk through the stunning Sahara landscapes.</p>
                                     <div class="flex items-center justify-between mt-3">
                                         <span class="text-xs text-gray-500">31 attending</span>
-                                        <button class="btn-secondary px-3 py-1 rounded-lg text-sm">Join Event</button>
+                                        <button class="btn-secondary px-3 py-1 rounded-lg text-sm join-event">Join Event</button>
                                     </div>
                                 </div>
                             </div>
@@ -637,7 +637,7 @@
                         <span>🏛️ History Expert</span>
                         <span>🍽️ Food Lover</span>
                     </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm">Connect</button>
+                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
                 </div>
                 
                 <div class="bg-white rounded-xl p-6 shadow-sm">
@@ -654,7 +654,7 @@
                         <span>📸 Photographer</span>
                         <span>🏖️ Beach Lover</span>
                     </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm">Connect</button>
+                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
                 </div>
                 
                 <div class="bg-white rounded-xl p-6 shadow-sm">
@@ -671,7 +671,7 @@
                         <span>💻 Remote Worker</span>
                         <span>🏙️ City Explorer</span>
                     </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm">Connect</button>
+                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
                 </div>
                 
                 <div class="bg-white rounded-xl p-6 shadow-sm">
@@ -688,7 +688,7 @@
                         <span>👩‍🍳 Chef</span>
                         <span>🌶️ Spice Enthusiast</span>
                     </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm">Connect</button>
+                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
                 </div>
                 
                 <div class="bg-white rounded-xl p-6 shadow-sm">
@@ -705,7 +705,7 @@
                         <span>🎓 Student</span>
                         <span>🏛️ History Buff</span>
                     </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm">Connect</button>
+                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
                 </div>
                 
                 <div class="bg-white rounded-xl p-6 shadow-sm">
@@ -722,7 +722,7 @@
                         <span>🎨 Artist</span>
                         <span>🏛️ Architecture Lover</span>
                     </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm">Connect</button>
+                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
                 </div>
             </div>
         </div>
@@ -826,150 +826,6 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <script>
-        // Initialize the dashboard
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeDashboard();
-            initializeMap();
-            initializeChat();
-        });
-
-        function initializeDashboard() {
-            // Navigation functionality
-            const navItems = document.querySelectorAll('.nav-item');
-            const sections = document.querySelectorAll('.section-content');
-            
-            navItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const section = this.dataset.section;
-                    
-                    // Update active nav item
-                    navItems.forEach(nav => nav.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Show corresponding section
-                    sections.forEach(sec => {
-                        sec.classList.add('hidden');
-                        if (sec.id === section + 'Section') {
-                            sec.classList.remove('hidden');
-                        }
-                    });
-                });
-            });
-            
-            // Logout functionality
-            document.getElementById('logoutBtn').addEventListener('click', function() {
-                if (confirm('Are you sure you want to logout?')) {
-                    window.location.href = 'index.html';
-                }
-            });
-        }
-
-        function initializeMap() {
-            // Initialize Leaflet map
-            const map = L.map('map').setView([34.0, 9.0], 6);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-            
-            // Add markers for Tunisia locations
-            const locations = [
-                { lat: 36.8008, lng: 10.1800, name: 'Sidi Bou Said', type: 'architecture', description: 'Beautiful blue and white village' },
-                { lat: 36.8529, lng: 10.3231, name: 'Carthage Ruins', type: 'historical', description: 'Ancient Phoenician city' },
-                { lat: 35.3008, lng: 10.7067, name: 'El Jem', type: 'historical', description: 'Roman amphitheater' },
-                { lat: 33.8869, lng: 9.5375, name: 'Sahara Desert', type: 'adventure', description: 'Golden sand dunes' },
-                { lat: 33.8078, lng: 10.8557, name: 'Djerba Island', type: 'beach', description: 'Pristine Mediterranean beaches' },
-                { lat: 35.6712, lng: 10.1003, name: 'Kairouan', type: 'historical', description: 'Islamic holy city' }
-            ];
-            
-            locations.forEach(location => {
-                const marker = L.marker([location.lat, location.lng]).addTo(map);
-                marker.bindPopup(`<b>${location.name}</b><br>${location.description}`);
-            });
-        }
-
-        function initializeChat() {
-            const messageInput = document.getElementById('messageInput');
-            const sendButton = document.getElementById('sendMessage');
-            const chatMessages = document.getElementById('chatMessages');
-            
-            function sendMessage() {
-                const message = messageInput.value.trim();
-                if (message) {
-                    addMessage(message, true);
-                    messageInput.value = '';
-                    
-                    // Simulate response after 2 seconds
-                    setTimeout(() => {
-                        const responses = [
-                            "Thanks for sharing! That's really helpful.",
-                            "I agree! Have you tried the local markets too?",
-                            "Great tip! Adding this to my itinerary.",
-                            "Amazing photos! What camera did you use?",
-                            "Welcome to the community! 🎉"
-                        ];
-                        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                        addMessage(randomResponse, false);
-                    }, 2000);
-                }
-            }
-            
-            function addMessage(text, isOwn) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${isOwn ? 'own' : ''}`;
-                
-                const initials = isOwn ? 'SA' : 'MK';
-                const name = isOwn ? 'Sarah Ahmed (You)' : 'Mohamed K.';
-                const time = new Date().toLocaleTimeString('en-US', { 
-                    hour: '2-digit', 
-                    minute: '2-digit',
-                    hour12: false 
-                });
-                
-                messageDiv.innerHTML = `
-                    <div class="flex items-start space-x-3">
-                        <div class="user-avatar text-sm">${initials}</div>
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-2 mb-1">
-                                <span class="font-semibold">${name}</span>
-                                <span class="text-xs text-gray-500">Today at ${time}</span>
-                            </div>
-                            <p class="text-gray-700">${text}</p>
-                            <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                                <button class="hover:text-blue-600">👍 0</button>
-                                <button class="hover:text-blue-600">Reply</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                chatMessages.appendChild(messageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }
-            
-            sendButton.addEventListener('click', sendMessage);
-            messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-        }
-
-        // Photo upload simulation
-        document.getElementById('uploadPhoto').addEventListener('click', function() {
-            alert('Photo upload feature coming soon! This would open a file picker to upload your Tunisia photos.');
-        });
-
-        // Event creation simulation
-        document.getElementById('createEvent').addEventListener('click', function() {
-            alert('Event creation feature coming soon! This would open a form to create new community events.');
-        });
-
-        // Premium upgrade simulation
-        document.getElementById('upgradePremium').addEventListener('click', function() {
-            alert('Premium upgrade feature coming soon! This would redirect to a secure payment page.');
-        });
-    </script>
+    <script src="main.js"></script>
 </body>
 </html>

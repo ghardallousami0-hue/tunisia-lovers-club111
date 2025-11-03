@@ -1,14 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<!-- Add this IN THE HEAD SECTION of index.html -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  // Supabase initialization - ADD THIS IN HEAD
-  const supabaseUrl = 'https://hkupyilfuxstrtrxzoas.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrdXB5aWxmdXhzdHJ0cnh6b2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzAzNDIsImV4cCI6MjA3Nzc0NjM0Mn0.pQuyM8KwWKtapsNaOk8qS4oDN28uL_V10jYNkFpm0P0';
-  window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tunisia Lovers Club - Discover the Heart of North Africa</title>
@@ -27,6 +19,14 @@
     <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    
+    <!-- SUPABASE SCRIPT - ADDED HERE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const supabaseUrl = 'https://hkupyilfuxstrtrxzoas.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrdXB5aWxmdXhzdHJ0cnh6b2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzAzNDIsImV4cCI6MjA3Nzc0NjM0Mn0.pQuyM8KwWKtapsNaOk8qS4oDN28uL_V10jYNkFpm0P0';
+      window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
     
     <style>
         :root {

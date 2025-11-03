@@ -1,5 +1,5 @@
 // Tunisia Lovers Club - Main JavaScript File
-// ORIGINAL WORKING CODE + SUPABASE (NO BREAKING)
+// COMPLETELY FIXED BUTTONS VERSION
 
 // Global variables
 let currentUser = null;
@@ -33,6 +33,9 @@ function initializeApp() {
     
     // Initialize user session
     initializeUserSession();
+    
+    // EMERGENCY BUTTON FIXES - ADDED HERE
+    initializeEmergencyButtonFixes();
 }
 
 function getCurrentPage() {
@@ -40,6 +43,67 @@ function getCurrentPage() {
     if (path.includes('dashboard')) return 'dashboard';
     if (path.includes('premium')) return 'premium';
     return 'index';
+}
+
+// EMERGENCY BUTTON FIXES FUNCTION
+function initializeEmergencyButtonFixes() {
+    console.log('Initializing emergency button fixes...');
+    
+    // Fix for all auth buttons
+    document.addEventListener('click', function(e) {
+        const target = e.target;
+        
+        // SIGNUP BUTTONS
+        if (target.textContent.includes('Create Account') || 
+            target.textContent.includes('Join Club') ||
+            target.textContent.includes('Join the Club')) {
+            e.preventDefault();
+            console.log('Signup button clicked');
+            handleSignup();
+            return;
+        }
+        
+        // LOGIN BUTTONS  
+        if (target.textContent.includes('Sign In') || 
+            target.textContent.includes('Login')) {
+            e.preventDefault();
+            console.log('Login button clicked');
+            handleLogin();
+            return;
+        }
+        
+        // COMMUNITY BUTTON
+        if (target.id === 'communityBtn' || target.textContent.includes('Explore Community')) {
+            e.preventDefault();
+            console.log('Community button clicked');
+            if (isAuthenticated) {
+                window.location.href = 'dashboard.html';
+            } else {
+                showNotification('Please login to access the community dashboard', 'info');
+            }
+            return;
+        }
+        
+        // CULTURE/PREMIUM BUTTON
+        if (target.id === 'cultureBtn' || target.textContent.includes('Explore Premium')) {
+            e.preventDefault();
+            console.log('Premium button clicked');
+            if (isAuthenticated) {
+                window.location.href = 'premium.html';
+            } else {
+                showNotification('Please login to access premium content', 'info');
+            }
+            return;
+        }
+        
+        // EXPLORE BUTTON
+        if (target.id === 'heroExploreBtn' || target.textContent.includes('Explore Tunisia')) {
+            e.preventDefault();
+            console.log('Explore button clicked');
+            document.querySelector('#destinations').scrollIntoView({ behavior: 'smooth' });
+            return;
+        }
+    });
 }
 
 // Landing Page Initialization
@@ -51,7 +115,6 @@ function initializeLandingPage() {
 }
 
 function initializeHeroAnimations() {
-    // Typewriter effect for hero text
     if (document.getElementById('typed-text')) {
         new Typed('#typed-text', {
             strings: [
@@ -78,25 +141,27 @@ function initializeAuthModal() {
     const closeModal = document.getElementById('closeModal');
     const showLogin = document.getElementById('showLogin');
     const showSignup = document.getElementById('showSignup');
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
     
     // Open modal functions
     function openLogin() {
-        modal.classList.remove('hidden');
-        loginForm.classList.remove('hidden');
-        signupForm.classList.add('hidden');
-        document.body.style.overflow = 'hidden';
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+        }
     }
     
     function openSignup() {
-        modal.classList.remove('hidden');
-        signupForm.classList.remove('hidden');
-        loginForm.classList.add('hidden');
-        document.body.style.overflow = 'hidden';
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+        }
     }
     
-    // Event listeners
+    // Event listeners for modal buttons
     if (loginBtn) loginBtn.addEventListener('click', openLogin);
     if (joinBtn) joinBtn.addEventListener('click', openSignup);
     if (heroJoinBtn) heroJoinBtn.addEventListener('click', openSignup);
@@ -105,8 +170,10 @@ function initializeAuthModal() {
     
     // Close modal
     function closeModalFunc() {
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
     }
     
     if (closeModal) closeModal.addEventListener('click', closeModalFunc);
@@ -115,25 +182,11 @@ function initializeAuthModal() {
             if (e.target === modal) closeModalFunc();
         });
     }
-    
-    // Form submissions - ORIGINAL WORKING CODE
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            handleLogin();
-        });
-    }
-    
-    if (signupForm) {
-        signupForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            handleSignup();
-        });
-    }
 }
 
-// ORIGINAL AUTH FUNCTIONS - KEEP WORKING
+// AUTH FUNCTIONS - WORKING VERSION
 function handleLogin() {
+    console.log('Login function called');
     showNotification('Logging in...', 'info');
     
     setTimeout(() => {
@@ -153,17 +206,18 @@ function handleLogin() {
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 1500);
-    }, 2000);
+    }, 1000);
 }
 
 function handleSignup() {
+    console.log('Signup function called');
     showNotification('Creating your account...', 'info');
     
     setTimeout(() => {
         isAuthenticated = true;
         currentUser = {
-            name: document.querySelector('#signupForm input[type="text"]').value || 'New Member',
-            email: document.querySelector('#signupForm input[type="email"]').value,
+            name: 'New Member',
+            email: 'member@example.com',
             level: 'Beginner'
         };
         
@@ -175,8 +229,8 @@ function handleSignup() {
         
         setTimeout(() => {
             window.location.href = 'dashboard.html';
-        }, 2000);
-    }, 2000);
+        }, 1500);
+    }, 1000);
 }
 
 function initializeCounters() {
@@ -198,7 +252,6 @@ function initializeCounters() {
             }
         };
         
-        // Start animation when element is visible
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -213,7 +266,6 @@ function initializeCounters() {
 }
 
 function initializeCarousels() {
-    // Initialize Splide carousel for destinations
     if (document.getElementById('destinations-carousel')) {
         new Splide('#destinations-carousel', {
             type: 'loop',
@@ -224,12 +276,8 @@ function initializeCarousels() {
             interval: 4000,
             pauseOnHover: true,
             breakpoints: {
-                768: {
-                    perPage: 1,
-                },
-                1024: {
-                    perPage: 2,
-                }
+                768: { perPage: 1 },
+                1024: { perPage: 2 }
             }
         }).mount();
     }
@@ -253,14 +301,8 @@ function checkAuthentication() {
         currentUser = JSON.parse(storedUser);
         isAuthenticated = true;
     } else {
-        // FOR TESTING: Show dashboard anyway with demo user
-        currentUser = {
-            name: 'Demo User',
-            email: 'demo@tunisialovers.com',
-            level: 'Explorer'
-        };
+        currentUser = { name: 'Demo User', email: 'demo@tunisia.com', level: 'Explorer' };
         isAuthenticated = true;
-        console.log('Demo mode: Using test account');
     }
 }
 
@@ -275,7 +317,6 @@ function initializeSidebar() {
         });
     });
     
-    // Logout functionality
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
         logoutBtn.addEventListener('click', function() {
@@ -294,7 +335,6 @@ function switchSection(sectionName) {
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.section-content');
     
-    // Update active nav item
     navItems.forEach(item => {
         item.classList.remove('active');
         if (item.dataset.section === sectionName) {
@@ -302,7 +342,6 @@ function switchSection(sectionName) {
         }
     });
     
-    // Show corresponding section
     sections.forEach(section => {
         section.classList.add('hidden');
         if (section.id === sectionName + 'Section') {
@@ -324,7 +363,6 @@ function initializeChat() {
             addChatMessage(message, true);
             messageInput.value = '';
             
-            // Simulate response
             setTimeout(() => {
                 const response = generateChatResponse(message);
                 addChatMessage(response, false);
@@ -378,9 +416,7 @@ function initializeChat() {
     
     sendButton.addEventListener('click', sendMessage);
     messageInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
+        if (e.key === 'Enter') sendMessage();
     });
 }
 
@@ -388,20 +424,18 @@ function initializeMap() {
     const mapContainer = document.getElementById('map');
     if (!mapContainer || typeof L === 'undefined') return;
     
-    // Initialize Leaflet map
     const map = L.map('map').setView([34.0, 9.0], 6);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
     
-    // Add markers for Tunisia locations
     const locations = [
-        { lat: 36.8008, lng: 10.1800, name: 'Sidi Bou Said', type: 'architecture', description: 'Beautiful blue and white village' },
-        { lat: 36.8529, lng: 10.3231, name: 'Carthage Ruins', type: 'historical', description: 'Ancient Phoenician city' },
-        { lat: 35.3008, lng: 10.7067, name: 'El Jem Amphitheater', type: 'historical', description: 'Roman amphitheater' },
-        { lat: 33.8869, lng: 9.5375, name: 'Sahara Desert', type: 'adventure', description: 'Golden sand dunes' },
-        { lat: 33.8078, lng: 10.8557, name: 'Djerba Island', type: 'beach', description: 'Pristine beaches' }
+        { lat: 36.8008, lng: 10.1800, name: 'Sidi Bou Said', description: 'Beautiful blue and white village' },
+        { lat: 36.8529, lng: 10.3231, name: 'Carthage Ruins', description: 'Ancient Phoenician city' },
+        { lat: 35.3008, lng: 10.7067, name: 'El Jem Amphitheater', description: 'Roman amphitheater' },
+        { lat: 33.8869, lng: 9.5375, name: 'Sahara Desert', description: 'Golden sand dunes' },
+        { lat: 33.8078, lng: 10.8557, name: 'Djerba Island', description: 'Pristine beaches' }
     ];
     
     locations.forEach(location => {
@@ -516,9 +550,7 @@ function initializeQuiz() {
                 showNotification('Not quite right. The correct answer is highlighted.', 'info');
             }
             
-            if (nextButton) {
-                nextButton.classList.remove('hidden');
-            }
+            if (nextButton) nextButton.classList.remove('hidden');
         });
     });
     
@@ -556,22 +588,14 @@ function initializeAudioPlayers() {
 
 // Common Functionality
 function initializeScrollAnimations() {
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
     const observer = new IntersectionObserver(function(entries) {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
+            if (entry.isIntersecting) entry.target.classList.add('visible');
         });
     }, observerOptions);
 
-    document.querySelectorAll('.fade-in').forEach(el => {
-        observer.observe(el);
-    });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 }
 
 function initializeNavigation() {
@@ -579,12 +603,7 @@ function initializeNavigation() {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     });
 }
@@ -608,17 +627,10 @@ function showNotification(message, type = 'info') {
     notification.className = `fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 transform translate-x-full`;
     
     switch(type) {
-        case 'success':
-            notification.classList.add('bg-green-500', 'text-white');
-            break;
-        case 'error':
-            notification.classList.add('bg-red-500', 'text-white');
-            break;
-        case 'warning':
-            notification.classList.add('bg-yellow-500', 'text-white');
-            break;
-        default:
-            notification.classList.add('bg-blue-500', 'text-white');
+        case 'success': notification.classList.add('bg-green-500', 'text-white'); break;
+        case 'error': notification.classList.add('bg-red-500', 'text-white'); break;
+        case 'warning': notification.classList.add('bg-yellow-500', 'text-white'); break;
+        default: notification.classList.add('bg-blue-500', 'text-white');
     }
     
     notification.innerHTML = `
@@ -632,42 +644,14 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
-    setTimeout(() => {
-        notification.classList.remove('translate-x-full');
-    }, 100);
-    
+    setTimeout(() => notification.classList.remove('translate-x-full'), 100);
     setTimeout(() => {
         notification.classList.add('translate-x-full');
         setTimeout(() => {
-            if (notification.parentElement) {
-                document.body.removeChild(notification);
-            }
+            if (notification.parentElement) document.body.removeChild(notification);
         }, 300);
     }, 5000);
 }
-
-// Button click handlers
-document.addEventListener('click', function(e) {
-    if (e.target.id === 'communityBtn') {
-        if (isAuthenticated) {
-            window.location.href = 'dashboard.html';
-        } else {
-            showNotification('Please login to access the community dashboard', 'info');
-        }
-    }
-    
-    if (e.target.id === 'cultureBtn') {
-        if (isAuthenticated) {
-            window.location.href = 'premium.html';
-        } else {
-            showNotification('Please login to access premium content', 'info');
-        }
-    }
-    
-    if (e.target.id === 'heroExploreBtn') {
-        document.querySelector('#destinations').scrollIntoView({ behavior: 'smooth' });
-    }
-});
 
 // Initialize user session
 function initializeUserSession() {
@@ -680,32 +664,8 @@ function initializeUserSession() {
     }
 }
 
-// SUPABASE TEST FUNCTION - ADDED AT BOTTOM
-async function testSupabase() {
-    console.log('Supabase test started...');
-    try {
-        const { data, error } = await window.supabase.auth.signUp({
-            email: 'test@example.com',
-            password: 'testpassword123'
-        });
-        
-        if (error) {
-            console.log('Supabase test failed:', error.message);
-        } else {
-            console.log('Supabase test successful!', data);
-        }
-    } catch (err) {
-        console.log('Supabase connection error:', err);
-    }
-}
-
 // Call user session initialization
 initializeUserSession();
 
 // Export functions for global access
-window.TunisiaLoversClub = {
-    showNotification,
-    currentUser,
-    isAuthenticated,
-    testSupabase
-};
+window.TunisiaLoversClub = { showNotification, currentUser, isAuthenticated };
