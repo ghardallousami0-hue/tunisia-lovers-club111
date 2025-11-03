@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Content - Tunisia Lovers Club</title>
+    <meta name="description" content="Unlock exclusive Tunisia content - Language courses, cultural guides, recipes, and expert insights.">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <style>
+        :root {
+            --mediterranean-blue: #1B4B7A;
+            --sahara-gold: #D4A574;
+            --olive-green: #6B8E23;
+            --terracotta: #C65D07;
+            --cream-white: #FDF6E3;
+            --charcoal: #2C2C2C;
+            --sunset-orange: #FF6B35;
+            --mint-green: #98D8C8;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--cream-white);
+            color: var(--charcoal);
+        }
+        
+        .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .font-arabic {
+            font-family: 'Amiri', serif;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(135deg, var(--mediterranean-blue), var(--sahara-gold));
+            min-height: 40vh;
+        }
+        
+        .glass-nav {
+            backdrop-filter: blur(10px);
+            background: rgba(253, 246, 227, 0.9);
+            border-bottom: 1px solid rgba(27, 75, 122, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--sunset-orange), var(--terracotta));
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+        
+        .btn-secondary {
+            border: 2px solid var(--mediterranean-blue);
+            color: var(--mediterranean-blue);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--mediterranean-blue);
+            color: white;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, var(--mediterranean-blue), var(--sunset-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .lesson-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border-left: 4px solid var(--mediterranean-blue);
+        }
+        
+        .lesson-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .lesson-card.completed {
+            border-left-color: var(--olive-green);
+            background: linear-gradient(135deg, #f0f9ff, #ecfdf5);
+        }
+        
+        .progress-bar {
+            background: #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(135deg, var(--olive-green), var(--mint-green));
+            height: 8px;
+            border-radius: 8px;
+            transition: width 0.5s ease;
+        }
+        
+        .audio-player {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            space-x: 3;
+        }
+        
+        .play-button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--mediterranean-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .play-button:hover {
+            background: var(--sunset-orange);
+            transform: scale(1.1);
+        }
+        
+        .recipe-step {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--sahara-gold);
+        }
+        
+        .ingredient-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .ingredient-item:last-child {
+            border-bottom: none;
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .quiz-option {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--mediterranean-blue);
+            background: #f8fafc;
+        }
+        
+        .quiz-option.correct {
+            border-color: var(--olive-green);
+            background: #ecfdf5;
+        }
+        
+        .quiz-option.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="glass-nav fixed w-full top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="font-display text-2xl font-bold text-gradient">
+                        تونس ❤️ Tunisia Lovers
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="dashboard.html" class="text-gray-700 hover:text-blue-600 transition-colors">Dashboard</a>
+                    <a href="#language" class="text-gray-700 hover:text-blue-600 transition-colors">Language</a>
+                    <a href="#recipes" class="text-gray-700 hover:text-blue-600 transition-colors">Recipes</a>
+                    <a href="#culture" class="text-gray-700 hover:text-blue-600 transition-colors">Culture</a>
+                    <button id="backToDashboard" class="btn-primary px-6 py-2 rounded-full font-medium text-white">
+                        Back to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-white">
+            <div class="mb-8">
+                <h1 class="font-display text-5xl md:text-6xl font-bold mb-6">
+                    <span id="premiumTyped"></span>
+                </h1>
+                <p class="text-xl md:text-2xl max-w-3xl mx-auto opacity-90">
+                    Unlock the full Tunisia experience with exclusive content, language courses, and insider knowledge from local experts.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mt-12">
+                <div class="text-center fade-in">
+                    <div class="text-4xl mb-2">🎓</div>
+                    <div class="text-2xl font-bold mb-1">10</div>
+                    <div class="text-sm opacity-80">Language Lessons</div>
+                </div>
+                <div class="text-center fade-in">
+                    <div class="text-4xl mb-2">📚</div>
+                    <div class="text-2xl font-bold mb-1">25+</div>
+                    <div class="text-sm opacity-80">Traditional Recipes</div>
+                </div>
+                <div class="text-center fade-in">
+                    <div class="text-4xl mb-2">🗺️</div>
+                    <div class="text-2xl font-bold mb-1">50+</div>
+                    <div class="text-sm opacity-80">Hidden Locations</div>
+                </div>
+                <div class="text-center fade-in">
+                    <div class="text-4xl mb-2">👥</div>
+                    <div class="text-2xl font-bold mb-1">24/7</div>
+                    <div class="text-sm opacity-80">Expert Access</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Language Course Section -->
+    <section id="language" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 fade-in">
+                <h2 class="font-display text-4xl md:text-5xl font-bold mb-6 text-gradient">
+                    Survival Tunisian Arabic
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Master essential phrases and cultural insights to connect with locals and enhance your Tunisia experience.
+                </p>
+            </div>
+            
+            <!-- Progress Overview -->
+            <div class="bg-gradient-to-br from-blue-50 to-orange-50 rounded-2xl p-8 mb-12 fade-in">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-blue-600 mb-2">7/10</div>
+                        <div class="text-gray-600">Lessons Completed</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="progress-bar mb-2">
+                            <div class="progress-fill" style="width: 70%"></div>
+                        </div>
+                        <div class="text-gray-600">Overall Progress</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-orange-600 mb-2">85%</div>
+                        <div class="text-gray-600">Quiz Average</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Language Lessons -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="lesson-card completed fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Completed</span>
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 1: Basic Greetings</h3>
+                    <p class="text-gray-600 text-sm mb-4">Learn essential greetings and introductions in Tunisian Arabic.</p>
+                    <div class="audio-player mb-4">
+                        <div class="play-button mr-3">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">Aslema! (Hello!)</div>
+                            <div class="text-xs text-gray-500">0:15 / 2:30</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Quiz Score: 95%</span>
+                        <button class="btn-secondary px-4 py-2 rounded-lg text-sm">Review</button>
+                    </div>
+                </div>
+                
+                <div class="lesson-card completed fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Completed</span>
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 2: Shopping & Markets</h3>
+                    <p class="text-gray-600 text-sm mb-4">Navigate souks and negotiate prices like a local.</p>
+                    <div class="audio-player mb-4">
+                        <div class="play-button mr-3">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">Bch hal? (How much?)</div>
+                            <div class="text-xs text-gray-500">0:22 / 3:15</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Quiz Score: 88%</span>
+                        <button class="btn-secondary px-4 py-2 rounded-lg text-sm">Review</button>
+                    </div>
+                </div>
+                
+                <div class="lesson-card completed fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Completed</span>
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 3: Directions & Transport</h3>
+                    <p class="text-gray-600 text-sm mb-4">Ask for directions and navigate Tunisia confidently.</p>
+                    <div class="audio-player mb-4">
+                        <div class="play-button mr-3">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">Feen...? (Where is...?)</div>
+                            <div class="text-xs text-gray-500">0:18 / 2:45</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Quiz Score: 92%</span>
+                        <button class="btn-secondary px-4 py-2 rounded-lg text-sm">Review</button>
+                    </div>
+                </div>
+                
+                <div class="lesson-card completed fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Completed</span>
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 4: Food & Dining</h3>
+                    <p class="text-gray-600 text-sm mb-4">Order food and express your culinary preferences.</p>
+                    <div class="audio-player mb-4">
+                        <div class="play-button mr-3">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">Fama couscous? (Do you have couscous?)</div>
+                            <div class="text-xs text-gray-500">0:25 / 3:00</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Quiz Score: 78%</span>
+                        <button class="btn-secondary px-4 py-2 rounded-lg text-sm">Review</button>
+                    </div>
+                </div>
+                
+                <div class="lesson-card completed fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Completed</span>
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 5: Numbers & Time</h3>
+                    <p class="text-gray-600 text-sm mb-4">Tell time and understand prices and schedules.</p>
+                    <div class="audio-player mb-4">
+                        <div class="play-button mr-3">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">Kam sa3a? (What time?)</div>
+                            <div class="text-xs text-gray-500">0:20 / 2:35</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Quiz Score: 85%</span>
+                        <button class="btn-secondary px-4 py-2 rounded-lg text-sm">Review</button>
+                    </div>
+                </div>
+                
+                <div class="lesson-card completed fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Completed</span>
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 6: Cultural Expressions</h3>
+                    <p class="text-gray-600 text-sm mb-4">Understand common expressions and cultural phrases.</p>
+                    <div class="audio-player mb-4">
+                        <div class="play-button mr-3">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">Baraka Allahu fik (God bless you)</div>
+                            <div class="text-xs text-gray-500">0:30 / 3:20</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Quiz Score: 90%</span>
+                        <button class="btn-secondary px-4 py-2 rounded-lg text-sm">Review</button>
+                    </div>
+                </div>
+                
+                <div class="lesson-card completed fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Completed</span>
+                        <span class="text-2xl">✅</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 7: Emergency Phrases</h3>
+                    <p class="text-gray-600 text-sm mb-4">Essential phrases for emergencies and asking for help.</p>
+                    <div class="audio-player mb-4">
+                        <div class="play-button mr-3">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">Salli 3a 3awnek! (Help me!)</div>
+                            <div class="text-xs text-gray-500">0:15 / 2:20</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">Quiz Score: 95%</span>
+                        <button class="btn-secondary px-4 py-2 rounded-lg text-sm">Review</button>
+                    </div>
+                </div>
+                
+                <div class="lesson-card fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Current</span>
+                        <span class="text-2xl">📚</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 8: Social Interactions</h3>
+                    <p class="text-gray-600 text-sm mb-4">Make friends and engage in social conversations.</p>
+                    <div class="audio-player mb-4">
+                        <div class="play-button mr-3">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium">Fama chi haja njm n3awnek? (Can I help?)</div>
+                            <div class="text-xs text-gray-500">0:00 / 2:55</div>
+                        </div>
+                    </div>
+                    <button class="btn-primary px-4 py-2 rounded-lg text-sm w-full">Start Lesson</button>
+                </div>
+                
+                <div class="lesson-card fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">Locked</span>
+                        <span class="text-2xl">🔒</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 9: Travel & Accommodation</h3>
+                    <p class="text-gray-600 text-sm mb-4">Book hotels and navigate travel situations.</p>
+                    <div class="audio-player mb-4 opacity-50">
+                        <div class="play-button mr-3 bg-gray-400">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-400">Fama oda fargha? (Do you have empty room?)</div>
+                            <div class="text-xs text-gray-400">Locked</div>
+                        </div>
+                    </div>
+                    <button class="btn-secondary px-4 py-2 rounded-lg text-sm w-full opacity-50" disabled>
+                        Complete Previous Lesson
+                    </button>
+                </div>
+                
+                <div class="lesson-card fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full">Locked</span>
+                        <span class="text-2xl">🔒</span>
+                    </div>
+                    <h3 class="font-semibold text-lg mb-2">Lesson 10: Advanced Conversations</h3>
+                    <p class="text-gray-600 text-sm mb-4">Deepen your understanding with complex phrases.</p>
+                    <div class="audio-player mb-4 opacity-50">
+                        <div class="play-button mr-3 bg-gray-400">
+                            <span>▶</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-400">Advanced cultural expressions</div>
+                            <div class="text-xs text-gray-400">Locked</div>
+                        </div>
+                    </div>
+                    <button class="btn-secondary px-4 py-2 rounded-lg text-sm w-full opacity-50" disabled>
+                        Complete Previous Lesson
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    <!-- Recipe Collection Section -->
+    <section id="recipes" class="py-20 pattern-bg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 fade-in">
+                <h2 class="font-display text-4xl md:text-5xl font-bold mb-6 text-gradient">
+                    Traditional Tunisian Recipes
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Master the art of Tunisian cuisine with authentic recipes passed down through generations.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Couscous Recipe -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg fade-in">
+                    <div class="flex items-center mb-6">
+                        <img src="https://kimi-web-img.moonshot.cn/img/carthagemagazine.com/ccaf08898a71c143f5cc95e6d94840fa71bbeaf8.jpeg" alt="Tunisian Couscous" class="w-20 h-20 rounded-xl object-cover mr-4">
+                        <div>
+                            <h3 class="font-display text-2xl font-bold">Traditional Couscous</h3>
+                            <p class="text-gray-600">The national dish of Tunisia</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold mb-3">Ingredients (Serves 6):</h4>
+                        <div class="space-y-2">
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>500g fine couscous</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>500g lamb or chicken, cut into pieces</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>2 large onions, sliced</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>3 carrots, cut into chunks</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>2 potatoes, quartered</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>200g chickpeas, soaked overnight</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>2 tbsp harissa paste</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>1 tsp ground cumin</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>1 tsp ground coriander</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold mb-3">Preparation Steps:</h4>
+                        <div class="space-y-4">
+                            <div class="recipe-step">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">1</span>
+                                    <span class="font-medium">Prepare the couscous</span>
+                                </div>
+                                <p class="text-gray-600 text-sm">Place couscous in a large bowl, sprinkle with salted water, and let steam for 30 minutes in a couscoussier.</p>
+                            </div>
+                            
+                            <div class="recipe-step">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">2</span>
+                                    <span class="font-medium">Cook the meat and vegetables</span>
+                                </div>
+                                <p class="text-gray-600 text-sm">In a large pot, brown the meat with onions, add spices, then add vegetables and chickpeas with water. Simmer for 45 minutes.</p>
+                            </div>
+                            
+                            <div class="recipe-step">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">3</span>
+                                    <span class="font-medium">Add harissa and final cooking</span>
+                                </div>
+                                <p class="text-gray-600 text-sm">Stir in harissa paste and cook for another 15 minutes until vegetables are tender.</p>
+                            </div>
+                            
+                            <div class="recipe-step">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">4</span>
+                                    <span class="font-medium">Serve traditionally</span>
+                                </div>
+                                <p class="text-gray-600 text-sm">Fluff the couscous with butter, serve in a large platter with meat and vegetables arranged on top.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-orange-50 rounded-lg">
+                        <p class="text-sm text-orange-800">
+                            <strong>Chef's Tip:</strong> The key to perfect couscous is steaming it three times, fluffing with your hands between each steaming.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Brik Recipe -->
+                <div class="bg-white rounded-2xl p-8 shadow-lg fade-in">
+                    <div class="flex items-center mb-6">
+                        <img src="https://kimi-web-img.moonshot.cn/img/zwitafoods.com/8052807a20e10823d1c90d13c9451269a1ac2c31.png" alt="Tunisian Brik" class="w-20 h-20 rounded-xl object-cover mr-4">
+                        <div>
+                            <h3 class="font-display text-2xl font-bold">Tunisian Brik</h3>
+                            <p class="text-gray-600">Crispy pastry with runny egg center</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="font-semibold mb-3">Ingredients (Makes 6):</h4>
+                        <div class="space-y-2">
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>6 sheets of brik pastry (or filo dough)</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>6 fresh eggs</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>200g canned tuna, drained</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>2 potatoes, boiled and mashed</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>1 onion, finely chopped</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>2 tbsp parsley, chopped</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>1 tsp harissa paste</span>
+                            </div>
+                            <div class="ingredient-item">
+                                <span class="text-orange-600 mr-2">•</span>
+                                <span>Oil for frying</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold mb-3">Preparation Steps:</h4>
+                        <div class="space-y-4">
+                            <div class="recipe-step">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">1</span>
+                                    <span class="font-medium">Prepare the filling</span>
+                                </div>
+                                <p class="text-gray-600 text-sm">Mix tuna, mashed potatoes, onion, parsley, and harissa. Season with salt and pepper.</p>
+                            </div>
+                            
+                            <div class="recipe-step">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">2</span>
+                                    <span class="font-medium">Assemble the brik</span>
+                                </div>
+                                <p class="text-gray-600 text-sm">Place a spoonful of filling on each pastry sheet, create a well, and crack an egg into it.</p>
+                            </div>
+                            
+                            <div class="recipe-step">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">3</span>
+                                    <span class="font-medium">Fold and seal</span>
+                                </div>
+                                <p class="text-gray-600 text-sm">Fold the pastry into a triangle, sealing the edges carefully to keep the egg inside.</p>
+                            </div>
+                            
+                            <div class="recipe-step">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm mr-3">4</span>
+                                    <span class="font-medium">Fry to perfection</span>
+                                </div>
+                                <p class="text-gray-600 text-sm">Deep fry in hot oil (180°C) for 2-3 minutes until golden and crispy. Serve immediately.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-orange-50 rounded-lg">
+                        <p class="text-sm text-orange-800">
+                            <strong>Chef's Tip:</strong> The secret is keeping the yolk runny! Don't overcook - the egg should flow when you cut into the brik.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Interactive Quiz -->
+            <div class="mt-16 bg-white rounded-2xl p-8 shadow-lg fade-in">
+                <h3 class="font-display text-2xl font-bold mb-6 text-center">Test Your Knowledge</h3>
+                <div id="quiz-container">
+                    <div class="quiz-question mb-6">
+                        <h4 class="font-semibold mb-4">How do you say "Thank you" in Tunisian Arabic?</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="quiz-option" data-answer="incorrect">
+                                <span class="font-medium">Shukran</span>
+                                <p class="text-sm text-gray-600 mt-1">Standard Arabic</p>
+                            </div>
+                            <div class="quiz-option" data-answer="correct">
+                                <span class="font-medium">Yaishek</span>
+                                <p class="text-sm text-gray-600 mt-1">Tunisian Arabic</p>
+                            </div>
+                            <div class="quiz-option" data-answer="incorrect">
+                                <span class="font-medium">Merci</span>
+                                <p class="text-sm text-gray-600 mt-1">French influence</p>
+                            </div>
+                            <div class="quiz-option" data-answer="incorrect">
+                                <span class="font-medium">Baraka</span>
+                                <p class="text-sm text-gray-600 mt-1">"Enough" in Tunisian</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button id="next-question" class="btn-primary px-6 py-3 rounded-xl text-white font-medium hidden">
+                            Next Question
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cultural Guide Section -->
+    <section id="culture" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 fade-in">
+                <h2 class="font-display text-4xl md:text-5xl font-bold mb-6 text-gradient">
+                    Cultural Etiquette & Traditions
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Understand Tunisian customs, social norms, and cultural practices to show respect and build meaningful connections.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="space-y-8">
+                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-8 fade-in">
+                        <h3 class="font-display text-2xl font-bold mb-6 flex items-center">
+                            <span class="text-3xl mr-3">🤝</span>
+                            Social Etiquette
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Greetings</h4>
+                                <p class="text-sm text-gray-600">Use "Aslema" for hello and "Yaishek" for thank you. Handshakes are common, but wait for the other person to initiate.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Hospitality</h4>
+                                <p class="text-sm text-gray-600">Tunisians are incredibly hospitable. Always accept tea or coffee when offered - it's a sign of respect.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Dining Customs</h4>
+                                <p class="text-sm text-gray-600">Eat with your right hand. Wait for the host to start eating. Compliment the food generously.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Photography</h4>
+                                <p class="text-sm text-gray-600">Always ask permission before photographing people, especially in rural areas and markets.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-2xl p-8 fade-in">
+                        <h3 class="font-display text-2xl font-bold mb-6 flex items-center">
+                            <span class="text-3xl mr-3">🎉</span>
+                            Festivals & Celebrations
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Ramadan</h4>
+                                <p class="text-sm text-gray-600">Respect fasting hours, avoid eating/drinking in public during daylight. Evening iftar meals are social occasions.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Eid Celebrations</h4>
+                                <p class="text-sm text-gray-600">Eid al-Fitr and Eid al-Adha are major holidays. Families gather, share meals, and exchange gifts.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Carthage Festival</h4>
+                                <p class="text-sm text-gray-600">Annual summer festival featuring music, theater, and cultural performances in the ancient amphitheater.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Sahara Festival</h4>
+                                <p class="text-sm text-gray-600">Celebrated in Douz, showcasing Bedouin culture with camel races, music, and traditional crafts.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="space-y-8">
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-8 fade-in">
+                        <h3 class="font-display text-2xl font-bold mb-6 flex items-center">
+                            <span class="text-3xl mr-3">🕌</span>
+                            Religious & Cultural Sites
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Mosque Etiquette</h4>
+                                <p class="text-sm text-gray-600">Remove shoes, dress modestly (cover shoulders and knees), and speak quietly. Non-Muslims may not enter all areas.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Historical Sites</h4>
+                                <p class="text-sm text-gray-600">Show respect at ancient ruins and archaeological sites. These are sacred cultural heritage locations.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Medina Exploration</h4>
+                                <p class="text-sm text-gray-600">Get lost in the medina's maze-like streets, but be respectful of residential areas and local shops.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Traditional Crafts</h4>
+                                <p class="text-sm text-gray-600">Watch artisans at work, ask questions respectfully, and consider purchasing to support local craftspeople.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl p-8 fade-in">
+                        <h3 class="font-display text-2xl font-bold mb-6 flex items-center">
+                            <span class="text-3xl mr-3">💡</span>
+                            Insider Tips
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Bargaining</h4>
+                                <p class="text-sm text-gray-600">Expected in markets and souks. Start at 50% of the asking price and negotiate with a smile.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Tipping</h4>
+                                <p class="text-sm text-gray-600">10% is standard in restaurants. Round up taxi fares and tip guides and porters.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Dress Code</h4>
+                                <p class="text-sm text-gray-600">Beachwear is fine at resorts, but dress modestly in towns and religious areas.</p>
+                            </div>
+                            
+                            <div class="bg-white rounded-lg p-4">
+                                <h4 class="font-semibold mb-2">Language</h4>
+                                <p class="text-sm text-gray-600">Arabic is official, French widely spoken. Learning basic Tunisian Arabic phrases is greatly appreciated.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="font-display text-3xl font-bold mb-4 text-gradient">
+                    تونس ❤️ Tunisia Lovers Club
+                </div>
+                <p class="text-gray-400 mb-8 max-w-2xl mx-auto">
+                    Unlock the full Tunisia experience with premium content, cultural insights, and exclusive community access.
+                </p>
+                <div class="flex justify-center space-x-6 mb-8">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <span class="sr-only">Facebook</span>
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <span class="sr-only">Instagram</span>
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987 6.62 0 11.987-5.367 11.987-11.987C24.014 5.367 18.637.001 12.017.001zM8.449 16.988c-1.297 0-2.448-.49-3.323-1.297C4.198 14.895 3.708 13.744 3.708 12.447s.49-2.448 1.418-3.323c.875-.875 2.026-1.297 3.323-1.297s2.448.422 3.323 1.297c.928.875 1.418 2.026 1.418 3.323s-.49 2.448-1.418 3.323c-.875.807-2.026 1.297-3.323 1.297z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                        <span class="sr-only">Twitter</span>
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                        </svg>
+                    </a>
+                </div>
+                <div class="border-t border-gray-800 pt-8">
+                    <p class="text-gray-500 text-sm">
+                        © 2024 Tunisia Lovers Club Premium. Celebrating authentic Tunisian culture and heritage.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize premium page
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePremiumPage();
+            initializeQuiz();
+            initializeAudioPlayers();
+        });
+
+        function initializePremiumPage() {
+            // Typewriter effect for hero
+            new Typed('#premiumTyped', {
+                strings: ['Premium Tunisia Experience', 'Cultural Immersion', 'Expert Knowledge'],
+                typeSpeed: 80,
+                backSpeed: 60,
+                backDelay: 2000,
+                loop: true
+            });
+
+            // Fade in animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Back to dashboard button
+            document.getElementById('backToDashboard').addEventListener('click', function() {
+                window.location.href = 'dashboard.html';
+            });
+        }
+
+        function initializeQuiz() {
+            const quizOptions = document.querySelectorAll('.quiz-option');
+            const nextButton = document.getElementById('next-question');
+            
+            quizOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove previous selections
+                    quizOptions.forEach(opt => {
+                        opt.classList.remove('correct', 'incorrect');
+                    });
+                    
+                    // Mark correct/incorrect
+                    if (this.dataset.answer === 'correct') {
+                        this.classList.add('correct');
+                    } else {
+                        this.classList.add('incorrect');
+                        // Also highlight the correct answer
+                        document.querySelector('[data-answer="correct"]').classList.add('correct');
+                    }
+                    
+                    // Show next button
+                    nextButton.classList.remove('hidden');
+                });
+            });
+            
+            nextButton.addEventListener('click', function() {
+                // Simulate next question
+                alert('Great job! More questions available in the full premium course.');
+            });
+        }
+
+        function initializeAudioPlayers() {
+            const playButtons = document.querySelectorAll('.play-button');
+            
+            playButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const isPlaying = this.classList.contains('playing');
+                    
+                    // Stop all other players
+                    playButtons.forEach(btn => {
+                        btn.classList.remove('playing');
+                        btn.innerHTML = '<span>▶</span>';
+                    });
+                    
+                    if (!isPlaying) {
+                        this.classList.add('playing');
+                        this.innerHTML = '<span>⏸</span>';
+                        
+                        // Simulate audio playback
+                        setTimeout(() => {
+                            this.classList.remove('playing');
+                            this.innerHTML = '<span>▶</span>';
+                        }, 3000);
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+</html>
