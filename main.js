@@ -1,9 +1,10 @@
 // Tunisia Lovers Club - Main JavaScript File
-// REAL SUPABASE AUTH VERSION - NO AUTO LOGIN
+// Handles all interactive functionality across the website
 
 // Global variables
 let currentUser = null;
 let isAuthenticated = false;
+let activeSection = 'chat';
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -30,49 +31,6 @@ function initializeApp() {
     initializeScrollAnimations();
     initializeNavigation();
     initializeMobileMenu();
-    
-    // Check if user is logged in with Supabase
-    checkSupabaseAuth();
-}
-
-async function checkSupabaseAuth() {
-    try {
-        const { data, error } = await supabase.auth.getSession();
-        if (data.session && !error) {
-            currentUser = data.session.user;
-            isAuthenticated = true;
-            console.log('User logged in:', currentUser.email);
-            updateUIForAuthState(true);
-        } else {
-            console.log('No user logged in');
-            updateUIForAuthState(false);
-        }
-    } catch (error) {
-        console.log('Auth check failed:', error);
-        updateUIForAuthState(false);
-    }
-}
-
-function updateUIForAuthState(loggedIn) {
-    const loginButtons = document.querySelectorAll('#loginBtn, #joinBtn');
-    if (loginButtons.length > 0) {
-        if (loggedIn) {
-            loginButtons.forEach(btn => {
-                btn.textContent = 'Dashboard';
-                btn.onclick = () => window.location.href = 'dashboard.html';
-            });
-        } else {
-            loginButtons.forEach(btn => {
-                if (btn.id === 'loginBtn') {
-                    btn.textContent = 'Login';
-                    btn.onclick = () => openAuthModal('login');
-                } else if (btn.id === 'joinBtn') {
-                    btn.textContent = 'Join Club';
-                    btn.onclick = () => openAuthModal('signup');
-                }
-            });
-        }
-    }
 }
 
 function getCurrentPage() {
@@ -91,6 +49,7 @@ function initializeLandingPage() {
 }
 
 function initializeHeroAnimations() {
+    // Typewriter effect for hero text
     if (document.getElementById('typed-text')) {
         new Typed('#typed-text', {
             strings: [
@@ -117,24 +76,23 @@ function initializeAuthModal() {
     const closeModal = document.getElementById('closeModal');
     const showLogin = document.getElementById('showLogin');
     const showSignup = document.getElementById('showSignup');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
     
-    function openAuthModal(type) {
-        if (modal) {
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            
-            if (type === 'login') {
-                document.getElementById('loginForm').classList.remove('hidden');
-                document.getElementById('signupForm').classList.add('hidden');
-            } else {
-                document.getElementById('signupForm').classList.remove('hidden');
-                document.getElementById('loginForm').classList.add('hidden');
-            }
-        }
+    // Open modal functions
+    function openLogin() {
+        modal.classList.remove('hidden');
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        document.body.style.overflow = 'hidden';
     }
     
-    function openLogin() { openAuthModal('login'); }
-    function openSignup() { openAuthModal('signup'); }
+    function openSignup() {
+        modal.classList.remove('hidden');
+        signupForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        document.body.style.overflow = 'hidden';
+    }
     
     // Event listeners
     if (loginBtn) loginBtn.addEventListener('click', openLogin);
@@ -143,11 +101,10 @@ function initializeAuthModal() {
     if (showLogin) showLogin.addEventListener('click', openLogin);
     if (showSignup) showSignup.addEventListener('click', openSignup);
     
+    // Close modal
     function closeModalFunc() {
-        if (modal) {
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
     }
     
     if (closeModal) closeModal.addEventListener('click', closeModalFunc);
@@ -157,145 +114,129 @@ function initializeAuthModal() {
         });
     }
     
-    // REAL FORM SUBMISSIONS - REQUIRE EMAIL/PASSWORD
-    const loginForm = document.getElementById('loginForm');
-    const signupForm = document.getElementById('signupForm');
-    
+    // Form submissions
     if (loginForm) {
-        const loginButton = loginForm.querySelector('button');
-        if (loginButton) {
-            loginButton.addEventListener('click', async function(e) {
-                e.preventDefault();
-                const email = loginForm.querySelector('input[type="email"]').value;
-                const password = loginForm.querySelector('input[type="password"]').value;
-                
-                if (!email || !password) {
-                    showNotification('Please enter both email and password', 'error');
-                    return;
-                }
-                
-                await handleSupabaseLogin(email, password);
-            });
-        }
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleLogin();
+        });
     }
     
     if (signupForm) {
-        const signupButton = signupForm.querySelector('button');
-        if (signupButton) {
-            signupButton.addEventListener('click', async function(e) {
-                e.preventDefault();
-                const email = signupForm.querySelector('input[type="email"]').value;
-                const password = signupForm.querySelector('input[type="password"]').value;
-                const fullName = signupForm.querySelector('input[type="text"]').value;
-                const experienceLevel = signupForm.querySelector('select').value;
-                
-                if (!email || !password || !fullName) {
-                    showNotification('Please fill all required fields', 'error');
-                    return;
-                }
-                
-                await handleSupabaseSignup(email, password, fullName, experienceLevel);
-            });
-        }
+        signupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            handleSignup();
+        });
     }
 }
 
-// REAL SUPABASE AUTH FUNCTIONS
-async function handleSupabaseLogin(email, password) {
+function handleLogin() {
+    // Simulate login process
     showNotification('Logging in...', 'info');
     
-    try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-        
-        if (error) {
-            showNotification('Login failed: ' + error.message, 'error');
-            return false;
-        }
-        
-        currentUser = data.user;
+    setTimeout(() => {
         isAuthenticated = true;
+        currentUser = {
+            name: 'Sarah Ahmed',
+            email: 'sarah@example.com',
+            level: 'Explorer'
+        };
         
-        showNotification('Login successful! Redirecting...', 'success');
+        // Store in localStorage
+        localStorage.setItem('tunisiaUser', JSON.stringify(currentUser));
+        localStorage.setItem('isAuthenticated', 'true');
+        
+        showNotification('Login successful! Redirecting to dashboard...', 'success');
         
         setTimeout(() => {
             window.location.href = 'dashboard.html';
         }, 1500);
-        
-        return true;
-    } catch (error) {
-        showNotification('Login error: ' + error.message, 'error');
-        return false;
-    }
+    }, 2000);
 }
 
-async function handleSupabaseSignup(email, password, fullName, experienceLevel) {
+function handleSignup() {
+    // Simulate signup process
     showNotification('Creating your account...', 'info');
     
-    try {
-        const { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    experience_level: experienceLevel
-                }
-            }
-        });
+    setTimeout(() => {
+        isAuthenticated = true;
+        currentUser = {
+            name: document.querySelector('#signupForm input[type="text"]').value || 'New Member',
+            email: document.querySelector('#signupForm input[type="email"]').value,
+            level: 'Beginner'
+        };
         
-        if (error) {
-            showNotification('Signup failed: ' + error.message, 'error');
-            return false;
-        }
+        // Store in localStorage
+        localStorage.setItem('tunisiaUser', JSON.stringify(currentUser));
+        localStorage.setItem('isAuthenticated', 'true');
         
-        if (data.user) {
-            showNotification('Account created! Please check your email for verification.', 'success');
-            
-            // Close modal
-            document.getElementById('authModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-            
-            // Clear form
-            document.querySelector('#signupForm input[type="email"]').value = '';
-            document.querySelector('#signupForm input[type="password"]').value = '';
-            document.querySelector('#signupForm input[type="text"]').value = '';
-        }
-        
-        return true;
-    } catch (error) {
-        showNotification('Signup error: ' + error.message, 'error');
-        return false;
-    }
-}
-
-async function handleSupabaseLogout() {
-    try {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            showNotification('Logout failed: ' + error.message, 'error');
-            return;
-        }
-        
-        currentUser = null;
-        isAuthenticated = false;
-        showNotification('Logged out successfully', 'success');
+        showNotification('Account created! Welcome to Tunisia Lovers Club!', 'success');
         
         setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1000);
-    } catch (error) {
-        showNotification('Logout error: ' + error.message, 'error');
+            window.location.href = 'dashboard.html';
+        }, 2000);
+    }, 2000);
+}
+
+function initializeCounters() {
+    const counters = document.querySelectorAll('[data-count]');
+    
+    counters.forEach(counter => {
+        const target = parseInt(counter.dataset.count);
+        const duration = 2000;
+        const increment = target / (duration / 16);
+        let current = 0;
+        
+        const updateCounter = () => {
+            current += increment;
+            if (current < target) {
+                counter.textContent = Math.floor(current).toLocaleString();
+                requestAnimationFrame(updateCounter);
+            } else {
+                counter.textContent = target.toLocaleString();
+            }
+        };
+        
+        // Start animation when element is visible
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateCounter();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+        
+        observer.observe(counter);
+    });
+}
+
+function initializeCarousels() {
+    // Initialize Splide carousel for destinations
+    if (document.getElementById('destinations-carousel')) {
+        new Splide('#destinations-carousel', {
+            type: 'loop',
+            perPage: 3,
+            perMove: 1,
+            gap: '2rem',
+            autoplay: true,
+            interval: 4000,
+            pauseOnHover: true,
+            breakpoints: {
+                768: {
+                    perPage: 1,
+                },
+                1024: {
+                    perPage: 2,
+                }
+            }
+        }).mount();
     }
 }
 
-// ... [KEEP ALL YOUR OTHER FUNCTIONS THE SAME - counters, carousels, etc.]
-
-// Dashboard Initialization - UPDATED FOR REAL AUTH
+// Dashboard Initialization
 function initializeDashboard() {
-    checkDashboardAuth();
+    checkAuthentication();
     initializeSidebar();
     initializeChat();
     initializeMap();
@@ -303,38 +244,16 @@ function initializeDashboard() {
     initializeEvents();
 }
 
-async function checkDashboardAuth() {
-    try {
-        const { data, error } = await supabase.auth.getSession();
-        if (!data.session || error) {
-            showNotification('Please login to access dashboard', 'error');
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 2000);
-            return;
-        }
-        
-        currentUser = data.session.user;
-        isAuthenticated = true;
-        
-        // Update dashboard with user info
-        updateDashboardUserInfo();
-    } catch (error) {
-        showNotification('Authentication error', 'error');
-        window.location.href = 'index.html';
-    }
-}
-
-function updateDashboardUserInfo() {
-    const userNameElement = document.querySelector('.user-avatar + div .font-semibold');
-    const userInitialsElement = document.querySelector('.user-avatar span');
+function checkAuthentication() {
+    const storedUser = localStorage.getItem('tunisiaUser');
+    const storedAuth = localStorage.getItem('isAuthenticated');
     
-    if (currentUser) {
-        const fullName = currentUser.user_metadata?.full_name || 'Tunisia Explorer';
-        const initials = getInitials(fullName);
-        
-        if (userNameElement) userNameElement.textContent = fullName;
-        if (userInitialsElement) userInitialsElement.textContent = initials;
+    if (storedAuth === 'true' && storedUser) {
+        currentUser = JSON.parse(storedUser);
+        isAuthenticated = true;
+    } else {
+        // Redirect to login if not authenticated
+        window.location.href = 'index.html';
     }
 }
 
@@ -349,60 +268,453 @@ function initializeSidebar() {
         });
     });
     
-    // Logout functionality - UPDATED FOR SUPABASE
+    // Logout functionality
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', handleSupabaseLogout);
+        logoutBtn.addEventListener('click', handleLogout);
     }
 }
 
-// ... [KEEP ALL YOUR OTHER ORIGINAL FUNCTIONS EXACTLY THE SAME]
-
-// EMERGENCY BUTTON FIXES - UPDATED TO REQUIRE AUTH
-document.addEventListener('click', function(e) {
-    const target = e.target;
+function switchSection(sectionName) {
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.section-content');
     
-    // COMMUNITY BUTTON
-    if (target.id === 'communityBtn' || target.textContent.includes('Explore Community')) {
-        e.preventDefault();
-        if (isAuthenticated) {
-            window.location.href = 'dashboard.html';
-        } else {
-            showNotification('Please login to access the community dashboard', 'info');
-            openAuthModal('signup');
+    // Update active nav item
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.section === sectionName) {
+            item.classList.add('active');
         }
-        return;
-    }
+    });
     
-    // CULTURE/PREMIUM BUTTON
-    if (target.id === 'cultureBtn' || target.textContent.includes('Explore Premium')) {
-        e.preventDefault();
-        if (isAuthenticated) {
-            window.location.href = 'premium.html';
-        } else {
-            showNotification('Please login to access premium content', 'info');
-            openAuthModal('signup');
+    // Show corresponding section
+    sections.forEach(section => {
+        section.classList.add('hidden');
+        if (section.id === sectionName + 'Section') {
+            section.classList.remove('hidden');
+            activeSection = sectionName;
         }
-        return;
+    });
+    
+    // Initialize section-specific functionality
+    switch(sectionName) {
+        case 'map':
+            initializeMap();
+            break;
+        case 'gallery':
+            initializePhotoGallery();
+            break;
+        case 'events':
+            initializeEvents();
+            break;
+    }
+}
+
+function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        localStorage.removeItem('tunisiaUser');
+        localStorage.removeItem('isAuthenticated');
+        currentUser = null;
+        isAuthenticated = false;
+        window.location.href = 'index.html';
+    }
+}
+
+function initializeChat() {
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendMessage');
+    const chatMessages = document.getElementById('chatMessages');
+    
+    if (!messageInput || !sendButton || !chatMessages) return;
+    
+    function sendMessage() {
+        const message = messageInput.value.trim();
+        if (message) {
+            addChatMessage(message, true);
+            messageInput.value = '';
+            
+            // Simulate response
+            setTimeout(() => {
+                const response = generateChatResponse(message);
+                addChatMessage(response, false);
+            }, 1000 + Math.random() * 2000);
+        }
     }
     
-    // EXPLORE BUTTON
-    if (target.id === 'heroExploreBtn' || target.textContent.includes('Explore Tunisia')) {
-        e.preventDefault();
-        document.querySelector('#destinations').scrollIntoView({ behavior: 'smooth' });
-        return;
+    function addChatMessage(text, isOwn) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${isOwn ? 'own' : ''}`;
+        
+        const initials = isOwn ? getInitials(currentUser.name) : 'MK';
+        const name = isOwn ? `${currentUser.name} (You)` : 'Mohamed K.';
+        const time = new Date().toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+        
+        messageDiv.innerHTML = `
+            <div class="flex items-start space-x-3">
+                <div class="user-avatar text-sm">${initials}</div>
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-1">
+                        <span class="font-semibold">${name}</span>
+                        <span class="text-xs text-gray-500">Today at ${time}</span>
+                    </div>
+                    <p class="text-gray-700">${text}</p>
+                    <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                        <button class="hover:text-blue-600 like-btn">👍 ${Math.floor(Math.random() * 15)}</button>
+                        <button class="hover:text-blue-600 reply-btn">Reply</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Add event listeners to new message
+        const likeBtn = messageDiv.querySelector('.like-btn');
+        const replyBtn = messageDiv.querySelector('.reply-btn');
+        
+        likeBtn.addEventListener('click', function() {
+            const currentLikes = parseInt(this.textContent.match(/\d+/)[0]);
+            this.textContent = `👍 ${currentLikes + 1}`;
+        });
+        
+        replyBtn.addEventListener('click', function() {
+            messageInput.value = `@${name.split(' ')[0]} `;
+            messageInput.focus();
+        });
     }
-});
+    
+    function generateChatResponse(message) {
+        const responses = [
+            "That's fascinating! I'd love to hear more about your experience.",
+            "Thanks for sharing! Have you tried the local markets too?",
+            "Great tip! I'm adding this to my itinerary for my next visit.",
+            "Amazing photos! What camera did you use for those shots?",
+            "Welcome to the community! 🎉 Hope you're enjoying Tunisia!",
+            "I completely agree! The culture there is so welcoming.",
+            "Did you get to try the traditional mint tea ceremony?",
+            "The architecture in that area is absolutely stunning!",
+            "Make sure to visit during festival season - it's incredible!",
+            "Local guides really make the difference, don't they?"
+        ];
+        
+        return responses[Math.floor(Math.random() * responses.length)];
+    }
+    
+    sendButton.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+}
 
-// Utility Functions (keep the same)
+function initializeMap() {
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer || typeof L === 'undefined') return;
+    
+    // Initialize Leaflet map
+    const map = L.map('map').setView([34.0, 9.0], 6);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Add markers for Tunisia locations
+    const locations = [
+        { 
+            lat: 36.8008, 
+            lng: 10.1800, 
+            name: 'Sidi Bou Said', 
+            type: 'architecture', 
+            description: 'Beautiful blue and white village overlooking the Mediterranean Sea. Perfect for photography and cultural exploration.'
+        },
+        { 
+            lat: 36.8529, 
+            lng: 10.3231, 
+            name: 'Carthage Ruins', 
+            type: 'historical', 
+            description: 'Ancient Phoenician city ruins with incredible historical significance and stunning sea views.'
+        },
+        { 
+            lat: 35.3008, 
+            lng: 10.7067, 
+            name: 'El Jem Amphitheater', 
+            type: 'historical', 
+            description: 'Magnificent Roman amphitheater, one of the best preserved in the world.'
+        },
+        { 
+            lat: 33.8869, 
+            lng: 9.5375, 
+            name: 'Sahara Desert', 
+            type: 'adventure', 
+            description: 'Golden sand dunes stretching endlessly. Perfect for camel trekking and stargazing.'
+        },
+        { 
+            lat: 33.8078, 
+            lng: 10.8557, 
+            name: 'Djerba Island', 
+            type: 'beach', 
+            description: 'Pristine Mediterranean beaches with rich Jewish heritage and traditional crafts.'
+        },
+        { 
+            lat: 35.6712, 
+            lng: 10.1003, 
+            name: 'Kairouan', 
+            type: 'historical', 
+            description: 'Islamic holy city with magnificent mosques and traditional carpet weaving.'
+        }
+    ];
+    
+    locations.forEach(location => {
+        const marker = L.marker([location.lat, location.lng]).addTo(map);
+        marker.bindPopup(`
+            <div class="p-2">
+                <h3 class="font-semibold text-lg mb-2">${location.name}</h3>
+                <p class="text-gray-600 mb-3">${location.description}</p>
+                <div class="flex items-center space-x-2">
+                    <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">${location.type}</span>
+                    <button onclick="addToFavorites('${location.name}')" class="text-xs text-orange-600 hover:underline">Add to Favorites</button>
+                </div>
+            </div>
+        `);
+    });
+    
+    // Add filter functionality
+    const filterCheckboxes = document.querySelectorAll('input[type="checkbox"]');
+    filterCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            // Filter implementation would go here
+            console.log('Filter changed:', this.checked);
+        });
+    });
+}
+
+function initializePhotoGallery() {
+    const photoItems = document.querySelectorAll('.photo-item');
+    const uploadBtn = document.getElementById('uploadPhoto');
+    
+    photoItems.forEach(item => {
+        item.addEventListener('click', function() {
+            openPhotoModal(this.querySelector('img').src);
+        });
+    });
+    
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', function() {
+            simulatePhotoUpload();
+        });
+    }
+}
+
+function openPhotoModal(imageSrc) {
+    // Create modal for photo viewing
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4';
+    modal.innerHTML = `
+        <div class="relative max-w-4xl max-h-full">
+            <img src="${imageSrc}" alt="Tunisia Photo" class="max-w-full max-h-full object-contain rounded-lg">
+            <button class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center hover:bg-opacity-70">
+                ✕
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    
+    // Close modal functionality
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal || e.target.tagName === 'BUTTON') {
+            document.body.removeChild(modal);
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+function simulatePhotoUpload() {
+    showNotification('Photo upload feature coming soon!', 'info');
+    // In a real app, this would open a file picker
+}
+
+function initializeEvents() {
+    const createEventBtn = document.getElementById('createEvent');
+    const eventCards = document.querySelectorAll('.event-card');
+    
+    if (createEventBtn) {
+        createEventBtn.addEventListener('click', function() {
+            showEventCreationModal();
+        });
+    }
+    
+    eventCards.forEach(card => {
+        const joinBtn = card.querySelector('button');
+        if (joinBtn) {
+            joinBtn.addEventListener('click', function() {
+                const eventName = card.querySelector('h4').textContent;
+                joinEvent(eventName);
+            });
+        }
+    });
+}
+
+function showEventCreationModal() {
+    showNotification('Event creation feature coming soon!', 'info');
+}
+
+function joinEvent(eventName) {
+    showNotification(`You've joined "${eventName}"! Details will be sent to your email.`, 'success');
+}
+
+// Premium Page Initialization
+function initializePremiumPage() {
+    initializePremiumAnimations();
+    initializeQuiz();
+    initializeAudioPlayers();
+}
+
+function initializePremiumAnimations() {
+    // Typewriter effect for premium hero
+    if (document.getElementById('premiumTyped')) {
+        new Typed('#premiumTyped', {
+            strings: [
+                'Premium Tunisia Experience',
+                'Cultural Immersion',
+                'Expert Knowledge',
+                'Authentic Connections'
+            ],
+            typeSpeed: 80,
+            backSpeed: 60,
+            backDelay: 2000,
+            loop: true
+        });
+    }
+}
+
+function initializeQuiz() {
+    const quizOptions = document.querySelectorAll('.quiz-option');
+    const nextButton = document.getElementById('next-question');
+    
+    if (quizOptions.length === 0) return;
+    
+    quizOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Remove previous selections
+            quizOptions.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+            });
+            
+            // Mark correct/incorrect
+            if (this.dataset.answer === 'correct') {
+                this.classList.add('correct');
+                showNotification('Correct! Well done!', 'success');
+            } else {
+                this.classList.add('incorrect');
+                document.querySelector('[data-answer="correct"]').classList.add('correct');
+                showNotification('Not quite right. The correct answer is highlighted.', 'info');
+            }
+            
+            // Show next button
+            if (nextButton) {
+                nextButton.classList.remove('hidden');
+            }
+        });
+    });
+    
+    if (nextButton) {
+        nextButton.addEventListener('click', function() {
+            showNotification('More questions available in the full premium course!', 'info');
+        });
+    }
+}
+
+function initializeAudioPlayers() {
+    const playButtons = document.querySelectorAll('.play-button');
+    
+    playButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const isPlaying = this.classList.contains('playing');
+            
+            // Stop all other players
+            playButtons.forEach(btn => {
+                btn.classList.remove('playing');
+                btn.innerHTML = '<span>▶</span>';
+            });
+            
+            if (!isPlaying) {
+                this.classList.add('playing');
+                this.innerHTML = '<span>⏸</span>';
+                
+                // Simulate audio playback
+                setTimeout(() => {
+                    this.classList.remove('playing');
+                    this.innerHTML = '<span>▶</span>';
+                }, 3000);
+            }
+        });
+    });
+}
+
+// Common Functionality
+function initializeScrollAnimations() {
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.fade-in').forEach(el => {
+        observer.observe(el);
+    });
+}
+
+function initializeNavigation() {
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+}
+
+function initializeMobileMenu() {
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', function() {
+            showNotification('Mobile menu feature coming soon!', 'info');
+        });
+    }
+}
+
+// Utility Functions
 function getInitials(name) {
     return name.split(' ').map(n => n[0]).join('').toUpperCase();
 }
 
 function showNotification(message, type = 'info') {
+    // Create notification element
     const notification = document.createElement('div');
     notification.className = `fixed top-20 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm transition-all duration-300 transform translate-x-full`;
     
+    // Set colors based on type
     switch(type) {
         case 'success':
             notification.classList.add('bg-green-500', 'text-white');
@@ -428,10 +740,12 @@ function showNotification(message, type = 'info') {
     
     document.body.appendChild(notification);
     
+    // Animate in
     setTimeout(() => {
         notification.classList.remove('translate-x-full');
     }, 100);
     
+    // Auto remove after 5 seconds
     setTimeout(() => {
         notification.classList.add('translate-x-full');
         setTimeout(() => {
@@ -442,11 +756,60 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// ... [KEEP ALL YOUR OTHER ORIGINAL FUNCTIONS EXACTLY THE SAME]
+function addToFavorites(locationName) {
+    showNotification(`Added "${locationName}" to your favorites!`, 'success');
+    
+    // In a real app, this would save to user's profile
+    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    if (!favorites.includes(locationName)) {
+        favorites.push(locationName);
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+}
+
+// Button click handlers for navigation
+document.addEventListener('click', function(e) {
+    // Handle dashboard navigation
+    if (e.target.id === 'communityBtn') {
+        if (isAuthenticated) {
+            window.location.href = 'dashboard.html';
+        } else {
+            showNotification('Please login to access the community dashboard', 'info');
+        }
+    }
+    
+    if (e.target.id === 'cultureBtn') {
+        if (isAuthenticated) {
+            window.location.href = 'premium.html';
+        } else {
+            showNotification('Please login to access premium content', 'info');
+        }
+    }
+    
+    if (e.target.id === 'heroExploreBtn') {
+        document.querySelector('#destinations').scrollIntoView({ behavior: 'smooth' });
+    }
+});
+
+// Initialize user session on page load
+function initializeUserSession() {
+    const storedUser = localStorage.getItem('tunisiaUser');
+    const storedAuth = localStorage.getItem('isAuthenticated');
+    
+    if (storedAuth === 'true' && storedUser) {
+        currentUser = JSON.parse(storedUser);
+        isAuthenticated = true;
+    }
+}
+
+// Call user session initialization
+initializeUserSession();
 
 // Export functions for global access
 window.TunisiaLoversClub = {
     showNotification,
+    addToFavorites,
+    switchSection: switchSection || function() {},
     currentUser,
     isAuthenticated
 };
