@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Tunisia Lovers Club</title>
-    <meta name="description" content="Your Tunisia Lovers Club dashboard - Connect with the community, explore the map, and share your experiences.">
+    <meta name="description" content="Your Tunisia Lovers Club dashboard - Connect with the community, share photos, and explore premium content.">
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -12,13 +12,14 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <!-- Animation Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <!-- SUPABASE SCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      // Your Supabase connection
+      const supabaseUrl = 'https://hkupyilfuxstrtrxzoas.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrdXB5aWxmdXhzdHJ0cnh6b2FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNzAzNDIsImV4cCI6MjA3Nzc0NjM0Mn0.pQuyM8KwWKtapsNaOk8qS4oDN28uL_V10jYNkFpm0P0';
+      window.supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    </script>
     
     <style>
         :root {
@@ -64,7 +65,7 @@
         }
         
         .chat-container {
-            height: 400px;
+            height: 500px;
             overflow-y: auto;
             background: white;
             border-radius: 12px;
@@ -84,13 +85,6 @@
         .message.own {
             background-color: #eff6ff;
             border-left: 4px solid var(--mediterranean-blue);
-        }
-        
-        .map-container {
-            height: 500px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
         
         .photo-grid {
@@ -115,19 +109,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-        }
-        
-        .event-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-        
-        .event-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
         
         .btn-primary {
@@ -208,6 +189,88 @@
             opacity: 1;
             transform: translateY(0);
         }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success { background: #10B981; }
+        .notification.error { background: #EF4444; }
+        .notification.info { background: #3B82F6; }
+        
+        .group-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+            border-left: 4px solid var(--mediterranean-blue);
+        }
+        
+        .group-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .group-card.active {
+            border-left-color: var(--sunset-orange);
+            background: linear-gradient(135deg, #f0f9ff, #ecfdf5);
+        }
+        
+        .group-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-right: 12px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            color: #6b7280;
+            font-style: italic;
+        }
+        
+        .typing-dots {
+            display: flex;
+            margin-left: 8px;
+        }
+        
+        .typing-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #6b7280;
+            margin: 0 1px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
     </style>
 </head>
 <body>
@@ -240,23 +303,11 @@
                 <div class="nav-item active" data-section="chat">
                     <span class="mr-3">💬</span>
                     Community Chat
-                    <span class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">3</span>
-                </div>
-                <div class="nav-item" data-section="map">
-                    <span class="mr-3">🗺️</span>
-                    Interactive Map
+                    <span class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1" id="unreadCount">3</span>
                 </div>
                 <div class="nav-item" data-section="gallery">
                     <span class="mr-3">📸</span>
                     Photo Gallery
-                </div>
-                <div class="nav-item" data-section="events">
-                    <span class="mr-3">📅</span>
-                    Events Calendar
-                </div>
-                <div class="nav-item" data-section="members">
-                    <span class="mr-3">👥</span>
-                    Members Directory
                 </div>
                 <div class="nav-item" data-section="premium">
                     <span class="mr-3">⭐</span>
@@ -278,31 +329,29 @@
         <div id="chatSection" class="section-content">
             <div class="mb-6">
                 <h1 class="font-display text-3xl font-bold mb-2">Community Chat</h1>
-                <p class="text-gray-600">Connect with fellow Tunisia enthusiasts</p>
+                <p class="text-gray-600">Connect with fellow Tunisia enthusiasts in real-time</p>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <!-- Chat Channels -->
+                <!-- Chat Groups -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-xl p-4 shadow-sm">
-                        <h3 class="font-semibold mb-4">Channels</h3>
-                        <div class="space-y-2">
-                            <div class="channel-item p-3 rounded-lg bg-blue-50 border-l-4 border-blue-500 cursor-pointer">
-                                <div class="font-medium text-blue-700"># general</div>
-                                <div class="text-sm text-gray-500">2,487 members</div>
-                            </div>
-                            <div class="channel-item p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                <div class="font-medium"># travel-tips</div>
-                                <div class="text-sm text-gray-500">1,892 members</div>
-                            </div>
-                            <div class="channel-item p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                <div class="font-medium"># event-planning</div>
-                                <div class="text-sm text-gray-500">456 members</div>
-                            </div>
-                            <div class="channel-item p-3 rounded-lg hover:bg-gray-50 cursor-pointer">
-                                <div class="font-medium"># food-culture</div>
-                                <div class="text-sm text-gray-500">1,234 members</div>
-                            </div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="font-semibold">Chat Groups</h3>
+                            <button id="createGroupBtn" class="btn-primary px-3 py-1 rounded-lg text-sm">
+                                + New Group
+                            </button>
+                        </div>
+                        <div class="space-y-3" id="groupsList">
+                            <!-- Groups will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Online Members -->
+                    <div class="bg-white rounded-xl p-4 shadow-sm mt-4">
+                        <h3 class="font-semibold mb-3">Online Members</h3>
+                        <div class="space-y-2" id="onlineMembers">
+                            <!-- Online members will be loaded here -->
                         </div>
                     </div>
                 </div>
@@ -310,56 +359,22 @@
                 <!-- Chat Messages -->
                 <div class="lg:col-span-3">
                     <div class="bg-white rounded-xl shadow-sm">
+                        <div class="border-b border-gray-200 p-4">
+                            <h3 class="font-semibold" id="currentGroupName">General Chat</h3>
+                            <p class="text-sm text-gray-500" id="groupDescription">Main community discussion</p>
+                        </div>
+                        
                         <div class="chat-container" id="chatMessages">
-                            <div class="message">
-                                <div class="flex items-start space-x-3">
-                                    <div class="user-avatar text-sm">MK</div>
-                                    <div class="flex-1">
-                                        <div class="flex items-center space-x-2 mb-1">
-                                            <span class="font-semibold">Mohamed K.</span>
-                                            <span class="text-xs text-gray-500">Today at 14:32</span>
-                                        </div>
-                                        <p class="text-gray-700">Just got back from Sidi Bou Said! The blue and white architecture is even more stunning in person. Highly recommend visiting early morning to avoid crowds.</p>
-                                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                                            <button class="hover:text-blue-600">👍 12</button>
-                                            <button class="hover:text-blue-600">Reply</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="message">
-                                <div class="flex items-start space-x-3">
-                                    <div class="user-avatar text-sm">LM</div>
-                                    <div class="flex-1">
-                                        <div class="flex items-center space-x-2 mb-1">
-                                            <span class="font-semibold">Lisa M.</span>
-                                            <span class="text-xs text-gray-500">Today at 14:45</span>
-                                        </div>
-                                        <p class="text-gray-700">@Mohamed Thanks for the tip! I'm planning my first trip to Tunisia next month. Any recommendations for authentic local restaurants in Tunis?</p>
-                                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                                            <button class="hover:text-blue-600">👍 5</button>
-                                            <button class="hover:text-blue-600">Reply</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="message own">
-                                <div class="flex items-start space-x-3">
-                                    <div class="user-avatar text-sm">SA</div>
-                                    <div class="flex-1">
-                                        <div class="flex items-center space-x-2 mb-1">
-                                            <span class="font-semibold">Sarah Ahmed (You)</span>
-                                            <span class="text-xs text-gray-500">Today at 15:02</span>
-                                        </div>
-                                        <p class="text-gray-700">@Lisa You must try Dar Zarrouk in Sidi Bou Said for amazing sea views and traditional cuisine! Also, the street food in Tunis medina is incredible - don't miss the brik!</p>
-                                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                                            <button class="hover:text-blue-600">👍 8</button>
-                                            <button class="hover:text-blue-600">Reply</button>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Messages will be loaded here -->
+                        </div>
+                        
+                        <!-- Typing Indicator -->
+                        <div class="typing-indicator hidden" id="typingIndicator">
+                            <span id="typingUsers"></span>
+                            <div class="typing-dots">
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
+                                <div class="typing-dot"></div>
                             </div>
                         </div>
                         
@@ -367,72 +382,16 @@
                         <div class="border-t border-gray-200 p-4">
                             <div class="flex space-x-3">
                                 <input type="text" id="messageInput" placeholder="Type your message..." class="flex-1 px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <input type="file" id="photoUpload" accept="image/*" class="hidden">
+                                <button id="photoBtn" class="btn-secondary px-4 py-2 rounded-xl font-medium">
+                                    📸
+                                </button>
                                 <button id="sendMessage" class="btn-primary px-6 py-2 rounded-xl text-white font-medium">
                                     Send
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Map Section -->
-        <div id="mapSection" class="section-content hidden">
-            <div class="mb-6">
-                <h1 class="font-display text-3xl font-bold mb-2">Interactive Tunisia Map</h1>
-                <p class="text-gray-600">Explore hidden gems and popular destinations</p>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl p-4 shadow-sm">
-                        <h3 class="font-semibold mb-4">Filter Locations</h3>
-                        <div class="space-y-3">
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-2" checked>
-                                <span class="text-sm">🏛️ Historical Sites</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-2" checked>
-                                <span class="text-sm">🏖️ Beaches</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-2" checked>
-                                <span class="text-sm">🍽️ Restaurants</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-2" checked>
-                                <span class="text-sm">🏺 Museums</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-2" checked>
-                                <span class="text-sm">🛍️ Markets</span>
-                            </label>
-                            <label class="flex items-center">
-                                <input type="checkbox" class="mr-2" checked>
-                                <span class="text-sm">📸 Photo Spots</span>
-                            </label>
-                        </div>
-                        
-                        <div class="mt-6">
-                            <h4 class="font-medium mb-3">Recent Additions</h4>
-                            <div class="space-y-2 text-sm">
-                                <div class="p-2 bg-gray-50 rounded-lg">
-                                    <div class="font-medium">Secret Beach, Djerba</div>
-                                    <div class="text-gray-500">Added by Ahmed K.</div>
-                                </div>
-                                <div class="p-2 bg-gray-50 rounded-lg">
-                                    <div class="font-medium">Local Cafe, Kairouan</div>
-                                    <div class="text-gray-500">Added by Maria L.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="lg:col-span-3">
-                    <div id="map" class="map-container"></div>
                 </div>
             </div>
         </div>
@@ -444,286 +403,17 @@
                 <p class="text-gray-600">Share your Tunisia moments with the community</p>
             </div>
             
-            <div class="mb-6">
+            <div class="mb-6 flex space-x-4">
                 <button id="uploadPhoto" class="btn-primary px-6 py-3 rounded-xl text-white font-medium">
                     📸 Upload Photo
                 </button>
+                <button id="refreshGallery" class="btn-secondary px-6 py-3 rounded-xl font-medium">
+                    🔄 Refresh
+                </button>
             </div>
             
-            <div class="photo-grid">
-                <div class="photo-item">
-                    <img src="https://kimi-web-img.moonshot.cn/img/www.themediterraneantraveller.com/8359f16f4a898733c89d94e26bbec0eba7b9bd0.jpg" alt="Sidi Bou Said">
-                </div>
-                <div class="photo-item">
-                    <img src="https://kimi-web-img.moonshot.cn/img/cdn.pixabay.com/d6688fe12820e13fc682f982a027156c0485fc55.jpg" alt="Carthage Ruins">
-                </div>
-                <div class="photo-item">
-                    <img src="https://kimi-web-img.moonshot.cn/img/toubkal-trekking.com/80d0d1d3b7b8dbb70279cdaf63f318fada387dbb.jpeg" alt="Sahara Desert">
-                </div>
-                <div class="photo-item">
-                    <img src="https://kimi-web-img.moonshot.cn/img/hf-s3.hotelfriend.com/a84e9b7382f3251856ee7e7056315268484f5351.jpg" alt="Djerba Beach">
-                </div>
-                <div class="photo-item">
-                    <img src="https://kimi-web-img.moonshot.cn/img/www.archidatum.com/0f7b0b0e3649cc138aa80f90aef4990322b555fe.jpg" alt="El Jem Amphitheater">
-                </div>
-                <div class="photo-item">
-                    <img src="resources/mint-tea.jpg" alt="Tunisian Tea Ceremony">
-                </div>
-                <div class="photo-item">
-                    <img src="https://kimi-web-img.moonshot.cn/img/carthagemagazine.com/ccaf08898a71c143f5cc95e6d94840fa71bbeaf8.jpeg" alt="Tunisian Cuisine">
-                </div>
-                <div class="photo-item">
-                    <img src="resources/pottery.jpg" alt="Traditional Pottery">
-                </div>
-            </div>
-        </div>
-
-        <!-- Events Section -->
-        <div id="eventsSection" class="section-content hidden">
-            <div class="mb-6">
-                <h1 class="font-display text-3xl font-bold mb-2">Events Calendar</h1>
-                <p class="text-gray-600">Join upcoming meetups and cultural events</p>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-xl p-6 shadow-sm mb-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="font-semibold text-lg">December 2024</h3>
-                            <div class="flex space-x-2">
-                                <button class="btn-secondary px-4 py-2 rounded-lg text-sm">← Previous</button>
-                                <button class="btn-secondary px-4 py-2 rounded-lg text-sm">Next →</button>
-                            </div>
-                        </div>
-                        
-                        <div class="grid grid-cols-7 gap-2 mb-4">
-                            <div class="text-center font-medium text-gray-500 py-2">Sun</div>
-                            <div class="text-center font-medium text-gray-500 py-2">Mon</div>
-                            <div class="text-center font-medium text-gray-500 py-2">Tue</div>
-                            <div class="text-center font-medium text-gray-500 py-2">Wed</div>
-                            <div class="text-center font-medium text-gray-500 py-2">Thu</div>
-                            <div class="text-center font-medium text-gray-500 py-2">Fri</div>
-                            <div class="text-center font-medium text-gray-500 py-2">Sat</div>
-                        </div>
-                        
-                        <div class="grid grid-cols-7 gap-2">
-                            <!-- Calendar days -->
-                            <div class="calendar-day p-3 text-center text-gray-400">1</div>
-                            <div class="calendar-day p-3 text-center text-gray-400">2</div>
-                            <div class="calendar-day p-3 text-center text-gray-400">3</div>
-                            <div class="calendar-day p-3 text-center text-gray-400">4</div>
-                            <div class="calendar-day p-3 text-center text-gray-400">5</div>
-                            <div class="calendar-day p-3 text-center text-gray-400">6</div>
-                            <div class="calendar-day p-3 text-center text-gray-400">7</div>
-                            <div class="calendar-day p-3 text-center">8</div>
-                            <div class="calendar-day p-3 text-center">9</div>
-                            <div class="calendar-day p-3 text-center bg-blue-100 rounded-lg cursor-pointer relative">
-                                10
-                                <div class="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full"></div>
-                            </div>
-                            <div class="calendar-day p-3 text-center">11</div>
-                            <div class="calendar-day p-3 text-center">12</div>
-                            <div class="calendar-day p-3 text-center">13</div>
-                            <div class="calendar-day p-3 text-center">14</div>
-                            <div class="calendar-day p-3 text-center bg-orange-100 rounded-lg cursor-pointer relative">
-                                15
-                                <div class="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full"></div>
-                            </div>
-                            <div class="calendar-day p-3 text-center">16</div>
-                            <div class="calendar-day p-3 text-center">17</div>
-                            <div class="calendar-day p-3 text-center">18</div>
-                            <div class="calendar-day p-3 text-center">19</div>
-                            <div class="calendar-day p-3 text-center">20</div>
-                            <div class="calendar-day p-3 text-center">21</div>
-                            <div class="calendar-day p-3 text-center bg-green-100 rounded-lg cursor-pointer relative">
-                                22
-                                <div class="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full"></div>
-                            </div>
-                            <div class="calendar-day p-3 text-center">23</div>
-                            <div class="calendar-day p-3 text-center">24</div>
-                            <div class="calendar-day p-3 text-center">25</div>
-                            <div class="calendar-day p-3 text-center">26</div>
-                            <div class="calendar-day p-3 text-center">27</div>
-                            <div class="calendar-day p-3 text-center">28</div>
-                            <div class="calendar-day p-3 text-center">29</div>
-                            <div class="calendar-day p-3 text-center">30</div>
-                            <div class="calendar-day p-3 text-center">31</div>
-                        </div>
-                    </div>
-                    
-                    <button id="createEvent" class="btn-primary px-6 py-3 rounded-xl text-white font-medium">
-                        📅 Create Event
-                    </button>
-                </div>
-                
-                <div class="lg:col-span-1">
-                    <div class="space-y-4">
-                        <h3 class="font-semibold text-lg">Upcoming Events</h3>
-                        
-                        <div class="event-card">
-                            <div class="flex items-start space-x-3">
-                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <span class="text-blue-600 font-bold">10</span>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-semibold">Virtual Tunisia Culture Night</h4>
-                                    <p class="text-sm text-gray-600 mb-2">Dec 10, 2024 • 7:00 PM GMT</p>
-                                    <p class="text-sm text-gray-500">Join us for an evening of Tunisian music, food, and culture sharing.</p>
-                                    <div class="flex items-center justify-between mt-3">
-                                        <span class="text-xs text-gray-500">24 attending</span>
-                                        <button class="btn-secondary px-3 py-1 rounded-lg text-sm join-event">Join Event</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="event-card">
-                            <div class="flex items-start space-x-3">
-                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                                    <span class="text-orange-600 font-bold">15</span>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-semibold">Tunisian Cooking Workshop</h4>
-                                    <p class="text-sm text-gray-600 mb-2">Dec 15, 2024 • 6:00 PM GMT</p>
-                                    <p class="text-sm text-gray-500">Learn to make authentic couscous and brik with a local chef.</p>
-                                    <div class="flex items-center justify-between mt-3">
-                                        <span class="text-xs text-gray-500">18 attending</span>
-                                        <button class="btn-secondary px-3 py-1 rounded-lg text-sm join-event">Join Event</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="event-card">
-                            <div class="flex items-start space-x-3">
-                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                    <span class="text-green-600 font-bold">22</span>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-semibold">Sahara Desert Photo Walk</h4>
-                                    <p class="text-sm text-gray-600 mb-2">Dec 22, 2024 • 10:00 AM GMT</p>
-                                    <p class="text-sm text-gray-500">Virtual photo walk through the stunning Sahara landscapes.</p>
-                                    <div class="flex items-center justify-between mt-3">
-                                        <span class="text-xs text-gray-500">31 attending</span>
-                                        <button class="btn-secondary px-3 py-1 rounded-lg text-sm join-event">Join Event</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Members Section -->
-        <div id="membersSection" class="section-content hidden">
-            <div class="mb-6">
-                <h1 class="font-display text-3xl font-bold mb-2">Members Directory</h1>
-                <p class="text-gray-600">Connect with fellow Tunisia enthusiasts</p>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="bg-white rounded-xl p-6 shadow-sm">
-                    <div class="text-center mb-4">
-                        <div class="user-avatar w-16 h-16 mx-auto mb-3 text-xl">MK</div>
-                        <h3 class="font-semibold text-lg">Mohamed K.</h3>
-                        <p class="text-gray-600 text-sm">Local Guide • Tunis</p>
-                        <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2">Online</span>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-4">
-                        <p>"Born and raised in Tunis. Love sharing hidden gems and authentic experiences with visitors!"</p>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
-                        <span>🏛️ History Expert</span>
-                        <span>🍽️ Food Lover</span>
-                    </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
-                </div>
-                
-                <div class="bg-white rounded-xl p-6 shadow-sm">
-                    <div class="text-center mb-4">
-                        <div class="user-avatar w-16 h-16 mx-auto mb-3 text-xl">LM</div>
-                        <h3 class="font-semibold text-lg">Lisa M.</h3>
-                        <p class="text-gray-600 text-sm">Travel Blogger • London</p>
-                        <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mt-2">Away</span>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-4">
-                        <p>"Visited Tunisia 3 times and counting. Always discovering new places to explore and photograph!"</p>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
-                        <span>📸 Photographer</span>
-                        <span>🏖️ Beach Lover</span>
-                    </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
-                </div>
-                
-                <div class="bg-white rounded-xl p-6 shadow-sm">
-                    <div class="text-center mb-4">
-                        <div class="user-avatar w-16 h-16 mx-auto mb-3 text-xl">JR</div>
-                        <h3 class="font-semibold text-lg">James R.</h3>
-                        <p class="text-gray-600 text-sm">Digital Nomad • Barcelona</p>
-                        <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2">Online</span>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-4">
-                        <p>"Planning to work remotely from Tunisia next year. Looking for recommendations on best cities!"</p>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
-                        <span>💻 Remote Worker</span>
-                        <span>🏙️ City Explorer</span>
-                    </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
-                </div>
-                
-                <div class="bg-white rounded-xl p-6 shadow-sm">
-                    <div class="text-center mb-4">
-                        <div class="user-avatar w-16 h-16 mx-auto mb-3 text-xl">AM</div>
-                        <h3 class="font-semibold text-lg">Amira M.</h3>
-                        <p class="text-gray-600 text-sm">Chef • Paris</p>
-                        <span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full mt-2">Offline</span>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-4">
-                        <p>"Learning Tunisian cuisine to add to my restaurant menu. Love the complexity of flavors!"</p>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
-                        <span>👩‍🍳 Chef</span>
-                        <span>🌶️ Spice Enthusiast</span>
-                    </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
-                </div>
-                
-                <div class="bg-white rounded-xl p-6 shadow-sm">
-                    <div class="text-center mb-4">
-                        <div class="user-avatar w-16 h-16 mx-auto mb-3 text-xl">AS</div>
-                        <h3 class="font-semibold text-lg">Ahmed S.</h3>
-                        <p class="text-gray-600 text-sm">Student • Berlin</p>
-                        <span class="inline-block bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-2">Online</span>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-4">
-                        <p>"Studying North African history. Tunisia's ancient sites are incredible for research and exploration!"</p>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
-                        <span>🎓 Student</span>
-                        <span>🏛️ History Buff</span>
-                    </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
-                </div>
-                
-                <div class="bg-white rounded-xl p-6 shadow-sm">
-                    <div class="text-center mb-4">
-                        <div class="user-avatar w-16 h-16 mx-auto mb-3 text-xl">CL</div>
-                        <h3 class="font-semibold text-lg">Claire L.</h3>
-                        <p class="text-gray-600 text-sm">Artist • Marseille</p>
-                        <span class="inline-block bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full mt-2">Away</span>
-                    </div>
-                    <div class="text-sm text-gray-600 mb-4">
-                        <p>"Inspired by Tunisian architecture and colors. Planning an art exhibition based on my travels!"</p>
-                    </div>
-                    <div class="flex items-center justify-between text-xs text-gray-500 mb-4">
-                        <span>🎨 Artist</span>
-                        <span>🏛️ Architecture Lover</span>
-                    </div>
-                    <button class="w-full btn-secondary py-2 rounded-lg text-sm connect-btn">Connect</button>
-                </div>
+            <div class="photo-grid" id="photoGallery">
+                <!-- Photos will be loaded here -->
             </div>
         </div>
 
@@ -823,9 +513,689 @@
         </div>
     </div>
 
-    <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <script src="main.js"></script>
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="fixed inset-0 modal-backdrop hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 relative">
+            <button id="closeGroupModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <div class="space-y-6">
+                <div class="text-center">
+                    <h2 class="font-display text-3xl font-bold mb-2 text-gradient">Create New Group</h2>
+                    <p class="text-gray-600">Start a new conversation with Tunisia enthusiasts</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Group Name</label>
+                        <input type="text" id="groupName" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="e.g. Tunisian Food Lovers">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="groupDescription" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="What is this group about?"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Group Icon</label>
+                        <select id="groupIcon" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="💬">💬 General</option>
+                            <option value="🍽️">🍽️ Food & Cuisine</option>
+                            <option value="🏛️">🏛️ History & Culture</option>
+                            <option value="🏖️">🏖️ Travel & Beaches</option>
+                            <option value="📸">📸 Photography</option>
+                            <option value="🗣️">🗣️ Language Learning</option>
+                            <option value="🎉">🎉 Events & Meetups</option>
+                            <option value="🤝">🤝 Local Guides</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button id="submitGroup" class="w-full btn-primary py-3 rounded-xl text-white font-semibold">
+                    Create Group
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentUser = null;
+        let currentGroup = 'general';
+        let groups = {};
+        let onlineUsers = {};
+        let typingUsers = {};
+        let realtimeSubscription = null;
+
+        // Dashboard functionality
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log("Dashboard loaded!");
+            
+            // Check if user is logged in
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                showNotification('Please login first!', 'error');
+                setTimeout(() => window.location.href = 'index.html', 2000);
+                return;
+            }
+            
+            currentUser = JSON.parse(user);
+            
+            // Update user info in sidebar
+            const userName = document.getElementById('userName');
+            const userLevel = document.getElementById('userLevel');
+            const userInitials = document.getElementById('userInitials');
+            
+            if (userName) userName.textContent = currentUser.name;
+            if (userLevel) userLevel.textContent = currentUser.experience_level;
+            if (userInitials) userInitials.textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            
+            // Initialize dashboard
+            await initializeDashboard();
+            
+            // Navigation
+            const navItems = document.querySelectorAll('.nav-item');
+            const sections = document.querySelectorAll('.section-content');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const section = this.dataset.section;
+                    
+                    // Update active nav
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show section
+                    sections.forEach(sec => sec.classList.add('hidden'));
+                    document.getElementById(section + 'Section').classList.remove('hidden');
+                });
+            });
+            
+            // Logout
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function() {
+                    localStorage.removeItem('currentUser');
+                    showNotification('Logged out successfully', 'info');
+                    setTimeout(() => window.location.href = 'index.html', 1000);
+                });
+            }
+        });
+        
+        // Initialize dashboard
+        async function initializeDashboard() {
+            // Load groups from database
+            await loadGroups();
+            
+            // Load initial messages
+            await loadMessages();
+            
+            // Setup real-time subscription
+            setupRealtimeSubscription();
+            
+            // Setup chat functionality
+            setupChat();
+            
+            // Setup group modal
+            setupGroupModal();
+            
+            // Setup photo upload
+            setupPhotoUpload();
+            
+            // Setup premium
+            setupPremium();
+            
+            // Setup gallery
+            await loadGallery();
+        }
+        
+        // Load groups from database
+        async function loadGroups() {
+            try {
+                // In a real app, you would fetch from your database
+                // For now, we'll use mock data
+                groups = {
+                    'general': {
+                        name: 'General Chat',
+                        description: 'Main community discussion',
+                        icon: '💬',
+                        members: 2487,
+                        createdBy: 'system',
+                        createdAt: new Date().toISOString()
+                    },
+                    'travel-tips': {
+                        name: 'Travel Tips',
+                        description: 'Share travel advice and recommendations',
+                        icon: '🏖️',
+                        members: 1892,
+                        createdBy: 'admin',
+                        createdAt: new Date().toISOString()
+                    },
+                    'food-culture': {
+                        name: 'Food & Culture',
+                        description: 'Discuss Tunisian cuisine and traditions',
+                        icon: '🍽️',
+                        members: 1234,
+                        createdBy: 'admin',
+                        createdAt: new Date().toISOString()
+                    }
+                };
+                
+                renderGroups();
+            } catch (error) {
+                console.error('Error loading groups:', error);
+                showNotification('Error loading groups', 'error');
+            }
+        }
+        
+        // Render groups in the sidebar
+        function renderGroups() {
+            const groupsList = document.getElementById('groupsList');
+            if (!groupsList) return;
+            
+            groupsList.innerHTML = '';
+            
+            Object.keys(groups).forEach(groupId => {
+                const group = groups[groupId];
+                const groupCard = document.createElement('div');
+                groupCard.className = `group-card ${groupId === currentGroup ? 'active' : ''}`;
+                groupCard.setAttribute('data-group', groupId);
+                groupCard.innerHTML = `
+                    <div class="flex items-center">
+                        <div class="group-icon" style="background: linear-gradient(135deg, var(--mediterranean-blue), var(--sahara-gold)); color: white;">
+                            ${group.icon}
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-semibold">${group.name}</div>
+                            <div class="text-sm text-gray-500">${group.members.toLocaleString()} members</div>
+                        </div>
+                    </div>
+                `;
+                
+                groupCard.addEventListener('click', () => switchGroup(groupId));
+                groupsList.appendChild(groupCard);
+            });
+        }
+        
+        // Switch to a different group
+        async function switchGroup(groupId) {
+            if (groupId === currentGroup) return;
+            
+            currentGroup = groupId;
+            renderGroups();
+            
+            // Update group info
+            const group = groups[groupId];
+            document.getElementById('currentGroupName').textContent = group.name;
+            document.getElementById('groupDescription').textContent = group.description;
+            
+            // Load messages for the new group
+            await loadMessages();
+            
+            showNotification(`Switched to ${group.name}`, 'info');
+        }
+        
+        // Load messages for current group
+        async function loadMessages() {
+            try {
+                const chatMessages = document.getElementById('chatMessages');
+                if (!chatMessages) return;
+                
+                // In a real app, you would fetch from your database
+                // For now, we'll use mock data
+                const mockMessages = [
+                    {
+                        id: '1',
+                        user_id: 'user1',
+                        user_name: 'Mohamed K.',
+                        user_initials: 'MK',
+                        content: 'Just got back from Sidi Bou Said! The blue and white architecture is even more stunning in person.',
+                        group_id: 'general',
+                        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+                        type: 'text'
+                    },
+                    {
+                        id: '2',
+                        user_id: 'user2',
+                        user_name: 'Lisa M.',
+                        user_initials: 'LM',
+                        content: '@Mohamed Thanks for the tip! I\'m planning my first trip to Tunisia next month.',
+                        group_id: 'general',
+                        created_at: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString(),
+                        type: 'text'
+                    },
+                    {
+                        id: '3',
+                        user_id: currentUser.id,
+                        user_name: currentUser.name,
+                        user_initials: currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase(),
+                        content: '@Lisa You must try Dar Zarrouk in Sidi Bou Said for amazing sea views and traditional cuisine!',
+                        group_id: 'general',
+                        created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+                        type: 'text'
+                    }
+                ];
+                
+                // Filter messages for current group
+                const groupMessages = mockMessages.filter(msg => msg.group_id === currentGroup);
+                
+                // Render messages
+                chatMessages.innerHTML = '';
+                groupMessages.forEach(msg => {
+                    addMessageToChat(msg, false);
+                });
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                showNotification('Error loading messages', 'error');
+            }
+        }
+        
+        // Setup real-time subscription for messages
+        function setupRealtimeSubscription() {
+            // In a real app, you would set up Supabase realtime subscription
+            // For now, we'll simulate real-time updates
+            setInterval(() => {
+                // Simulate new messages occasionally
+                if (Math.random() > 0.7) {
+                    const mockUsers = [
+                        { id: 'user4', name: 'Ahmed S.', initials: 'AS' },
+                        { id: 'user5', name: 'Claire L.', initials: 'CL' },
+                        { id: 'user6', name: 'James R.', initials: 'JR' }
+                    ];
+                    const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
+                    
+                    const messages = [
+                        'Has anyone visited the Sahara Desert recently?',
+                        'I found an amazing local restaurant in Tunis!',
+                        'The weather in Djerba is perfect this time of year.',
+                        'Can anyone recommend a good guide for Carthage?',
+                        'I\'m learning Tunisian Arabic, any tips?'
+                    ];
+                    
+                    const newMessage = {
+                        id: Date.now().toString(),
+                        user_id: randomUser.id,
+                        user_name: randomUser.name,
+                        user_initials: randomUser.initials,
+                        content: messages[Math.floor(Math.random() * messages.length)],
+                        group_id: currentGroup,
+                        created_at: new Date().toISOString(),
+                        type: 'text'
+                    };
+                    
+                    addMessageToChat(newMessage, true);
+                }
+            }, 10000); // Check every 10 seconds
+        }
+        
+        // Add message to chat
+        function addMessageToChat(message, isNew = true) {
+            const chatMessages = document.getElementById('chatMessages');
+            if (!chatMessages) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.user_id === currentUser.id ? 'own' : ''}`;
+            messageDiv.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="user-avatar text-sm">${message.user_initials}</div>
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-semibold">${message.user_name} ${message.user_id === currentUser.id ? '(You)' : ''}</span>
+                            <span class="text-xs text-gray-500">${formatTime(message.created_at)}</span>
+                        </div>
+                        <p class="text-gray-700">${message.content}</p>
+                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                            <button class="hover:text-blue-600">👍 0</button>
+                            <button class="hover:text-blue-600">Reply</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            
+            if (isNew) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Update unread count if not in chat section
+                if (!document.getElementById('chatSection').classList.contains('hidden')) {
+                    const unreadCount = document.getElementById('unreadCount');
+                    if (unreadCount) {
+                        const currentCount = parseInt(unreadCount.textContent) || 0;
+                        unreadCount.textContent = currentCount + 1;
+                    }
+                }
+            }
+        }
+        
+        // Format time for display
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            
+            return date.toLocaleDateString();
+        }
+        
+        // Show notification
+        function showNotification(message, type = 'info') {
+            // Remove existing notifications
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+        
+        // Chat functions
+        function setupChat() {
+            const messageInput = document.getElementById('messageInput');
+            const sendButton = document.getElementById('sendMessage');
+            const chatMessages = document.getElementById('chatMessages');
+            const photoBtn = document.getElementById('photoBtn');
+            const photoUpload = document.getElementById('photoUpload');
+            
+            if (!messageInput || !sendButton || !chatMessages) return;
+            
+            function sendMessage() {
+                const message = messageInput.value.trim();
+                if (message) {
+                    // Create message object
+                    const newMessage = {
+                        id: Date.now().toString(),
+                        user_id: currentUser.id,
+                        user_name: currentUser.name,
+                        user_initials: currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase(),
+                        content: message,
+                        group_id: currentGroup,
+                        created_at: new Date().toISOString(),
+                        type: 'text'
+                    };
+                    
+                    // In a real app, you would save to database here
+                    // For now, we'll just add to the UI
+                    addMessageToChat(newMessage, true);
+                    
+                    // Clear input
+                    messageInput.value = '';
+                }
+            }
+            
+            sendButton.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            
+            // Photo button
+            photoBtn.addEventListener('click', function() {
+                photoUpload.click();
+            });
+            
+            photoUpload.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    const file = e.target.files[0];
+                    
+                    // Create message with photo
+                    const newMessage = {
+                        id: Date.now().toString(),
+                        user_id: currentUser.id,
+                        user_name: currentUser.name,
+                        user_initials: currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase(),
+                        content: 'Shared a photo',
+                        group_id: currentGroup,
+                        created_at: new Date().toISOString(),
+                        type: 'photo',
+                        photo_url: URL.createObjectURL(file)
+                    };
+                    
+                    // In a real app, you would upload to storage and save to database
+                    // For now, we'll just add to the UI
+                    addPhotoMessageToChat(newMessage);
+                    
+                    photoUpload.value = '';
+                    
+                    showNotification('Photo shared successfully!', 'success');
+                }
+            });
+        }
+        
+        // Add photo message to chat
+        function addPhotoMessageToChat(message) {
+            const chatMessages = document.getElementById('chatMessages');
+            if (!chatMessages) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.user_id === currentUser.id ? 'own' : ''}`;
+            messageDiv.innerHTML = `
+                <div class="flex items-start space-x-3">
+                    <div class="user-avatar text-sm">${message.user_initials}</div>
+                    <div class="flex-1">
+                        <div class="flex items-center space-x-2 mb-1">
+                            <span class="font-semibold">${message.user_name} ${message.user_id === currentUser.id ? '(You)' : ''}</span>
+                            <span class="text-xs text-gray-500">${formatTime(message.created_at)}</span>
+                        </div>
+                        <p class="text-gray-700 mb-2">${message.content}</p>
+                        <div class="photo-item w-48">
+                            <img src="${message.photo_url}" alt="Shared photo">
+                        </div>
+                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                            <button class="hover:text-blue-600">👍 0</button>
+                            <button class="hover:text-blue-600">Reply</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Group creation modal
+        function setupGroupModal() {
+            const createGroupBtn = document.getElementById('createGroupBtn');
+            const createGroupModal = document.getElementById('createGroupModal');
+            const closeGroupModal = document.getElementById('closeGroupModal');
+            const submitGroup = document.getElementById('submitGroup');
+            
+            if (!createGroupBtn || !createGroupModal) return;
+            
+            createGroupBtn.addEventListener('click', function() {
+                createGroupModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            closeGroupModal.addEventListener('click', function() {
+                createGroupModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close modal when clicking outside
+            createGroupModal.addEventListener('click', function(e) {
+                if (e.target === createGroupModal) {
+                    createGroupModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            submitGroup.addEventListener('click', function() {
+                const groupName = document.getElementById('groupName').value;
+                const groupDescription = document.getElementById('groupDescription').value;
+                const groupIcon = document.getElementById('groupIcon').value;
+                
+                if (!groupName) {
+                    showNotification('Please enter a group name', 'error');
+                    return;
+                }
+                
+                // Create new group
+                const groupId = groupName.toLowerCase().replace(/\s+/g, '-');
+                groups[groupId] = {
+                    name: groupName,
+                    description: groupDescription,
+                    icon: groupIcon,
+                    members: 1,
+                    createdBy: currentUser.id,
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Update UI
+                renderGroups();
+                
+                // Close modal and reset form
+                createGroupModal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+                document.getElementById('groupName').value = '';
+                document.getElementById('groupDescription').value = '';
+                
+                showNotification(`Group "${groupName}" created successfully!`, 'success');
+            });
+        }
+        
+        // Photo upload in gallery
+        function setupPhotoUpload() {
+            const uploadPhotoBtn = document.getElementById('uploadPhoto');
+            const refreshGalleryBtn = document.getElementById('refreshGallery');
+            
+            if (!uploadPhotoBtn) return;
+            
+            uploadPhotoBtn.addEventListener('click', function() {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                
+                fileInput.addEventListener('change', function(e) {
+                    if (e.target.files.length > 0) {
+                        const file = e.target.files[0];
+                        addPhotoToGallery(file);
+                        showNotification('Photo uploaded to gallery!', 'success');
+                    }
+                });
+                
+                fileInput.click();
+            });
+            
+            if (refreshGalleryBtn) {
+                refreshGalleryBtn.addEventListener('click', async function() {
+                    await loadGallery();
+                    showNotification('Gallery refreshed!', 'info');
+                });
+            }
+        }
+        
+        // Load gallery photos
+        async function loadGallery() {
+            try {
+                const photoGallery = document.getElementById('photoGallery');
+                if (!photoGallery) return;
+                
+                // In a real app, you would fetch from your database
+                // For now, we'll use mock data
+                const mockPhotos = [
+                    'https://kimi-web-img.moonshot.cn/img/www.themediterraneantraveller.com/8359f16f4a898733c89d94e26bbec0eba7b9bd0.jpg',
+                    'https://kimi-web-img.moonshot.cn/img/cdn.pixabay.com/d6688fe12820e13fc682f982a027156c0485fc55.jpg',
+                    'https://kimi-web-img.moonshot.cn/img/toubkal-trekking.com/80d0d1d3b7b8dbb70279cdaf63f318fada387dbb.jpeg',
+                    'https://kimi-web-img.moonshot.cn/img/hf-s3.hotelfriend.com/a84e9b7382f3251856ee7e7056315268484f5351.jpg',
+                    'https://kimi-web-img.moonshot.cn/img/www.archidatum.com/0f7b0b0e3649cc138aa80f90aef4990322b555fe.jpg',
+                    'https://kimi-web-img.moonshot.cn/img/zwitafoods.com/8052807a20e10823d1c90d13c9451269a1ac2c31.png',
+                    'https://kimi-web-img.moonshot.cn/img/carthagemagazine.com/ccaf08898a71c143f5cc95e6d94840fa71bbeaf8.jpeg',
+                    'https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+                ];
+                
+                // Render photos
+                photoGallery.innerHTML = '';
+                mockPhotos.forEach(photoUrl => {
+                    const photoItem = document.createElement('div');
+                    photoItem.className = 'photo-item';
+                    
+                    const img = document.createElement('img');
+                    img.src = photoUrl;
+                    img.alt = 'Tunisia photo';
+                    
+                    photoItem.appendChild(img);
+                    photoGallery.appendChild(photoItem);
+                });
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+                showNotification('Error loading gallery', 'error');
+            }
+        }
+        
+        // Add photo to gallery
+        function addPhotoToGallery(file) {
+            const photoGallery = document.getElementById('photoGallery');
+            if (!photoGallery) return;
+            
+            const photoItem = document.createElement('div');
+            photoItem.className = 'photo-item';
+            
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.alt = 'Uploaded photo';
+            
+            photoItem.appendChild(img);
+            photoGallery.prepend(photoItem);
+        }
+        
+        // Premium section
+        function setupPremium() {
+            const upgradePremiumBtn = document.getElementById('upgradePremium');
+            
+            if (!upgradePremiumBtn) return;
+            
+            upgradePremiumBtn.addEventListener('click', function() {
+                if (currentUser.is_premium) {
+                    showNotification('You already have premium access!', 'info');
+                    return;
+                }
+                
+                // Simulate premium upgrade
+                currentUser.is_premium = true;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                showNotification('Premium upgrade successful! Welcome to premium membership!', 'success');
+                
+                // Redirect to premium page after a delay
+                setTimeout(() => {
+                    window.location.href = 'premium.html';
+                }, 2000);
+            });
+        }
+        
+        // Fade in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>
