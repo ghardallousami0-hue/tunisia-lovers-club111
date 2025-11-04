@@ -240,37 +240,6 @@
             font-size: 20px;
             margin-right: 12px;
         }
-        
-        .typing-indicator {
-            display: flex;
-            align-items: center;
-            padding: 8px 16px;
-            color: #6b7280;
-            font-style: italic;
-        }
-        
-        .typing-dots {
-            display: flex;
-            margin-left: 8px;
-        }
-        
-        .typing-dot {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background-color: #6b7280;
-            margin: 0 1px;
-            animation: typing 1.4s infinite ease-in-out;
-        }
-        
-        .typing-dot:nth-child(1) { animation-delay: 0s; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-5px); }
-        }
     </style>
 </head>
 <body>
@@ -303,7 +272,7 @@
                 <div class="nav-item active" data-section="chat">
                     <span class="mr-3">💬</span>
                     Community Chat
-                    <span class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1" id="unreadCount">3</span>
+                    <span class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1" id="unreadCount">0</span>
                 </div>
                 <div class="nav-item" data-section="gallery">
                     <span class="mr-3">📸</span>
@@ -343,15 +312,10 @@
                             </button>
                         </div>
                         <div class="space-y-3" id="groupsList">
-                            <!-- Groups will be loaded here -->
-                        </div>
-                    </div>
-                    
-                    <!-- Online Members -->
-                    <div class="bg-white rounded-xl p-4 shadow-sm mt-4">
-                        <h3 class="font-semibold mb-3">Online Members</h3>
-                        <div class="space-y-2" id="onlineMembers">
-                            <!-- Online members will be loaded here -->
+                            <div class="text-center py-4">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                                <p class="text-gray-500 mt-2">Loading groups...</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -365,16 +329,9 @@
                         </div>
                         
                         <div class="chat-container" id="chatMessages">
-                            <!-- Messages will be loaded here -->
-                        </div>
-                        
-                        <!-- Typing Indicator -->
-                        <div class="typing-indicator hidden" id="typingIndicator">
-                            <span id="typingUsers"></span>
-                            <div class="typing-dots">
-                                <div class="typing-dot"></div>
-                                <div class="typing-dot"></div>
-                                <div class="typing-dot"></div>
+                            <div class="text-center py-8">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                                <p class="text-gray-500 mt-2">Loading messages...</p>
                             </div>
                         </div>
                         
@@ -413,7 +370,10 @@
             </div>
             
             <div class="photo-grid" id="photoGallery">
-                <!-- Photos will be loaded here -->
+                <div class="text-center col-span-full py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                    <p class="text-gray-500 mt-2">Loading gallery...</p>
+                </div>
             </div>
         </div>
 
@@ -564,8 +524,6 @@
         let currentUser = null;
         let currentGroup = 'general';
         let groups = {};
-        let onlineUsers = {};
-        let typingUsers = {};
         let realtimeSubscription = null;
 
         // Dashboard functionality
@@ -625,67 +583,134 @@
         
         // Initialize dashboard
         async function initializeDashboard() {
-            // Load groups from database
-            await loadGroups();
-            
-            // Load initial messages
-            await loadMessages();
-            
-            // Setup real-time subscription
-            setupRealtimeSubscription();
-            
-            // Setup chat functionality
-            setupChat();
-            
-            // Setup group modal
-            setupGroupModal();
-            
-            // Setup photo upload
-            setupPhotoUpload();
-            
-            // Setup premium
-            setupPremium();
-            
-            // Setup gallery
-            await loadGallery();
+            try {
+                // Load groups from database
+                await loadGroups();
+                
+                // Load initial messages
+                await loadMessages();
+                
+                // Setup real-time subscription
+                setupRealtimeSubscription();
+                
+                // Setup chat functionality
+                setupChat();
+                
+                // Setup group modal
+                setupGroupModal();
+                
+                // Setup photo upload
+                setupPhotoUpload();
+                
+                // Setup premium
+                setupPremium();
+                
+                // Setup gallery
+                await loadGallery();
+            } catch (error) {
+                console.error('Error initializing dashboard:', error);
+                showNotification('Error loading dashboard', 'error');
+            }
         }
         
         // Load groups from database
         async function loadGroups() {
             try {
-                // In a real app, you would fetch from your database
-                // For now, we'll use mock data
-                groups = {
-                    'general': {
-                        name: 'General Chat',
-                        description: 'Main community discussion',
-                        icon: '💬',
-                        members: 2487,
-                        createdBy: 'system',
-                        createdAt: new Date().toISOString()
-                    },
-                    'travel-tips': {
-                        name: 'Travel Tips',
-                        description: 'Share travel advice and recommendations',
-                        icon: '🏖️',
-                        members: 1892,
-                        createdBy: 'admin',
-                        createdAt: new Date().toISOString()
-                    },
-                    'food-culture': {
-                        name: 'Food & Culture',
-                        description: 'Discuss Tunisian cuisine and traditions',
-                        icon: '🍽️',
-                        members: 1234,
-                        createdBy: 'admin',
-                        createdAt: new Date().toISOString()
+                // Fetch groups from Supabase
+                const { data: groupsData, error } = await window.supabase
+                    .from('groups')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+                
+                if (error) {
+                    console.error('Error loading groups:', error);
+                    // If table doesn't exist, create default groups
+                    if (error.code === '42P01') {
+                        await createDefaultGroups();
+                        return;
                     }
-                };
+                    throw error;
+                }
+                
+                // Convert array to object for easier access
+                groups = {};
+                if (groupsData && groupsData.length > 0) {
+                    groupsData.forEach(group => {
+                        groups[group.id] = group;
+                    });
+                } else {
+                    // No groups found, create default ones
+                    await createDefaultGroups();
+                }
                 
                 renderGroups();
+                showNotification('Groups loaded successfully', 'success');
             } catch (error) {
                 console.error('Error loading groups:', error);
                 showNotification('Error loading groups', 'error');
+                
+                // Fallback to mock data
+                await createDefaultGroups();
+            }
+        }
+        
+        // Create default groups
+        async function createDefaultGroups() {
+            try {
+                const defaultGroups = [
+                    {
+                        id: 'general',
+                        name: 'General Chat',
+                        description: 'Main community discussion',
+                        icon: '💬',
+                        members: 1,
+                        created_by: 'system'
+                    },
+                    {
+                        id: 'travel-tips',
+                        name: 'Travel Tips',
+                        description: 'Share travel advice and recommendations',
+                        icon: '🏖️',
+                        members: 1,
+                        created_by: 'system'
+                    },
+                    {
+                        id: 'food-culture',
+                        name: 'Food & Culture',
+                        description: 'Discuss Tunisian cuisine and traditions',
+                        icon: '🍽️',
+                        members: 1,
+                        created_by: 'system'
+                    }
+                ];
+                
+                for (const group of defaultGroups) {
+                    const { error } = await window.supabase
+                        .from('groups')
+                        .insert([group]);
+                    
+                    if (error) {
+                        console.error('Error creating default group:', error);
+                    } else {
+                        groups[group.id] = group;
+                    }
+                }
+                
+                renderGroups();
+            } catch (error) {
+                console.error('Error creating default groups:', error);
+                // Ultimate fallback - use mock data
+                groups = {
+                    'general': {
+                        id: 'general',
+                        name: 'General Chat',
+                        description: 'Main community discussion',
+                        icon: '💬',
+                        members: 1,
+                        created_by: 'system'
+                    }
+                };
+                renderGroups();
             }
         }
         
@@ -708,7 +733,7 @@
                         </div>
                         <div class="flex-1">
                             <div class="font-semibold">${group.name}</div>
-                            <div class="text-sm text-gray-500">${group.members.toLocaleString()} members</div>
+                            <div class="text-sm text-gray-500">${group.members ? group.members.toLocaleString() : '1'} members</div>
                         </div>
                     </div>
                 `;
@@ -742,94 +767,108 @@
                 const chatMessages = document.getElementById('chatMessages');
                 if (!chatMessages) return;
                 
-                // In a real app, you would fetch from your database
-                // For now, we'll use mock data
-                const mockMessages = [
-                    {
-                        id: '1',
-                        user_id: 'user1',
-                        user_name: 'Mohamed K.',
-                        user_initials: 'MK',
-                        content: 'Just got back from Sidi Bou Said! The blue and white architecture is even more stunning in person.',
-                        group_id: 'general',
-                        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-                        type: 'text'
-                    },
-                    {
-                        id: '2',
-                        user_id: 'user2',
-                        user_name: 'Lisa M.',
-                        user_initials: 'LM',
-                        content: '@Mohamed Thanks for the tip! I\'m planning my first trip to Tunisia next month.',
-                        group_id: 'general',
-                        created_at: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString(),
-                        type: 'text'
-                    },
-                    {
-                        id: '3',
-                        user_id: currentUser.id,
-                        user_name: currentUser.name,
-                        user_initials: currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase(),
-                        content: '@Lisa You must try Dar Zarrouk in Sidi Bou Said for amazing sea views and traditional cuisine!',
-                        group_id: 'general',
-                        created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-                        type: 'text'
-                    }
-                ];
+                // Show loading
+                chatMessages.innerHTML = `
+                    <div class="text-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                        <p class="text-gray-500 mt-2">Loading messages...</p>
+                    </div>
+                `;
                 
-                // Filter messages for current group
-                const groupMessages = mockMessages.filter(msg => msg.group_id === currentGroup);
+                // Fetch messages from Supabase
+                const { data: messages, error } = await window.supabase
+                    .from('messages')
+                    .select('*')
+                    .eq('group_id', currentGroup)
+                    .order('created_at', { ascending: true });
+                
+                if (error) {
+                    console.error('Error loading messages:', error);
+                    throw error;
+                }
                 
                 // Render messages
                 chatMessages.innerHTML = '';
-                groupMessages.forEach(msg => {
-                    addMessageToChat(msg, false);
-                });
+                
+                if (messages && messages.length > 0) {
+                    messages.forEach(msg => {
+                        addMessageToChat(msg, false);
+                    });
+                } else {
+                    // No messages yet
+                    chatMessages.innerHTML = `
+                        <div class="text-center py-8">
+                            <p class="text-gray-500">No messages yet. Start the conversation!</p>
+                        </div>
+                    `;
+                }
                 
                 // Scroll to bottom
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             } catch (error) {
                 console.error('Error loading messages:', error);
                 showNotification('Error loading messages', 'error');
+                
+                // Fallback UI
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-gray-500">Unable to load messages</p>
+                        <button onclick="loadMessages()" class="btn-secondary mt-2 px-4 py-2 rounded-lg text-sm">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        // Save message to Supabase
+        async function saveMessageToDatabase(message) {
+            try {
+                const { data, error } = await window.supabase
+                    .from('messages')
+                    .insert([{
+                        user_id: message.user_id,
+                        user_name: message.user_name,
+                        user_initials: message.user_initials,
+                        content: message.content,
+                        group_id: message.group_id,
+                        type: message.type,
+                        photo_url: message.photo_url || null
+                    }]);
+                
+                if (error) {
+                    console.error('Error saving message:', error);
+                    throw error;
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('Error saving message to database:', error);
+                throw error;
             }
         }
         
         // Setup real-time subscription for messages
         function setupRealtimeSubscription() {
-            // In a real app, you would set up Supabase realtime subscription
-            // For now, we'll simulate real-time updates
-            setInterval(() => {
-                // Simulate new messages occasionally
-                if (Math.random() > 0.7) {
-                    const mockUsers = [
-                        { id: 'user4', name: 'Ahmed S.', initials: 'AS' },
-                        { id: 'user5', name: 'Claire L.', initials: 'CL' },
-                        { id: 'user6', name: 'James R.', initials: 'JR' }
-                    ];
-                    const randomUser = mockUsers[Math.floor(Math.random() * mockUsers.length)];
-                    
-                    const messages = [
-                        'Has anyone visited the Sahara Desert recently?',
-                        'I found an amazing local restaurant in Tunis!',
-                        'The weather in Djerba is perfect this time of year.',
-                        'Can anyone recommend a good guide for Carthage?',
-                        'I\'m learning Tunisian Arabic, any tips?'
-                    ];
-                    
-                    const newMessage = {
-                        id: Date.now().toString(),
-                        user_id: randomUser.id,
-                        user_name: randomUser.name,
-                        user_initials: randomUser.initials,
-                        content: messages[Math.floor(Math.random() * messages.length)],
-                        group_id: currentGroup,
-                        created_at: new Date().toISOString(),
-                        type: 'text'
-                    };
-                    
-                    addMessageToChat(newMessage, true);
-                }
-            }, 10000); // Check every 10 seconds
+            // Subscribe to new messages
+            realtimeSubscription = window.supabase
+                .channel('messages')
+                .on('postgres_changes', 
+                    { 
+                        event: 'INSERT', 
+                        schema: 'public', 
+                        table: 'messages',
+                        filter: `group_id=eq.${currentGroup}`
+                    }, 
+                    (payload) => {
+                        // Only add message if it's not from current user (to avoid duplicates)
+                        if (payload.new.user_id !== currentUser.id) {
+                            addMessageToChat(payload.new, true);
+                        }
+                    }
+                )
+                .subscribe();
         }
         
         // Add message to chat
@@ -837,38 +876,57 @@
             const chatMessages = document.getElementById('chatMessages');
             if (!chatMessages) return;
             
+            // Clear "no messages" state if it exists
+            if (chatMessages.innerHTML.includes('No messages yet')) {
+                chatMessages.innerHTML = '';
+            }
+            
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${message.user_id === currentUser.id ? 'own' : ''}`;
-            messageDiv.innerHTML = `
-                <div class="flex items-start space-x-3">
-                    <div class="user-avatar text-sm">${message.user_initials}</div>
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2 mb-1">
-                            <span class="font-semibold">${message.user_name} ${message.user_id === currentUser.id ? '(You)' : ''}</span>
-                            <span class="text-xs text-gray-500">${formatTime(message.created_at)}</span>
-                        </div>
-                        <p class="text-gray-700">${message.content}</p>
-                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                            <button class="hover:text-blue-600">👍 0</button>
-                            <button class="hover:text-blue-600">Reply</button>
+            
+            if (message.type === 'photo' && message.photo_url) {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="user-avatar text-sm">${message.user_initials}</div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <span class="font-semibold">${message.user_name} ${message.user_id === currentUser.id ? '(You)' : ''}</span>
+                                <span class="text-xs text-gray-500">${formatTime(message.created_at)}</span>
+                            </div>
+                            <p class="text-gray-700 mb-2">${message.content}</p>
+                            <div class="photo-item w-48">
+                                <img src="${message.photo_url}" alt="Shared photo">
+                            </div>
+                            <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                                <button class="hover:text-blue-600">👍 0</button>
+                                <button class="hover:text-blue-600">Reply</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="flex items-start space-x-3">
+                        <div class="user-avatar text-sm">${message.user_initials}</div>
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-1">
+                                <span class="font-semibold">${message.user_name} ${message.user_id === currentUser.id ? '(You)' : ''}</span>
+                                <span class="text-xs text-gray-500">${formatTime(message.created_at)}</span>
+                            </div>
+                            <p class="text-gray-700">${message.content}</p>
+                            <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
+                                <button class="hover:text-blue-600">👍 0</button>
+                                <button class="hover:text-blue-600">Reply</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
             
             chatMessages.appendChild(messageDiv);
             
             if (isNew) {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                // Update unread count if not in chat section
-                if (!document.getElementById('chatSection').classList.contains('hidden')) {
-                    const unreadCount = document.getElementById('unreadCount');
-                    if (unreadCount) {
-                        const currentCount = parseInt(unreadCount.textContent) || 0;
-                        unreadCount.textContent = currentCount + 1;
-                    }
-                }
             }
         }
         
@@ -920,27 +978,36 @@
             
             if (!messageInput || !sendButton || !chatMessages) return;
             
-            function sendMessage() {
+            async function sendMessage() {
                 const message = messageInput.value.trim();
                 if (message) {
                     // Create message object
                     const newMessage = {
-                        id: Date.now().toString(),
                         user_id: currentUser.id,
                         user_name: currentUser.name,
                         user_initials: currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase(),
                         content: message,
                         group_id: currentGroup,
-                        created_at: new Date().toISOString(),
                         type: 'text'
                     };
                     
-                    // In a real app, you would save to database here
-                    // For now, we'll just add to the UI
-                    addMessageToChat(newMessage, true);
-                    
-                    // Clear input
-                    messageInput.value = '';
+                    try {
+                        // Save to database
+                        await saveMessageToDatabase(newMessage);
+                        
+                        // Add to UI (real-time will handle this for other users)
+                        addMessageToChat({
+                            ...newMessage,
+                            id: 'temp-' + Date.now(),
+                            created_at: new Date().toISOString()
+                        }, true);
+                        
+                        // Clear input
+                        messageInput.value = '';
+                    } catch (error) {
+                        console.error('Error sending message:', error);
+                        showNotification('Error sending message', 'error');
+                    }
                 }
             }
             
@@ -954,63 +1021,75 @@
                 photoUpload.click();
             });
             
-            photoUpload.addEventListener('change', function(e) {
+            photoUpload.addEventListener('change', async function(e) {
                 if (e.target.files.length > 0) {
                     const file = e.target.files[0];
                     
-                    // Create message with photo
-                    const newMessage = {
-                        id: Date.now().toString(),
-                        user_id: currentUser.id,
-                        user_name: currentUser.name,
-                        user_initials: currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase(),
-                        content: 'Shared a photo',
-                        group_id: currentGroup,
-                        created_at: new Date().toISOString(),
-                        type: 'photo',
-                        photo_url: URL.createObjectURL(file)
-                    };
-                    
-                    // In a real app, you would upload to storage and save to database
-                    // For now, we'll just add to the UI
-                    addPhotoMessageToChat(newMessage);
-                    
-                    photoUpload.value = '';
-                    
-                    showNotification('Photo shared successfully!', 'success');
+                    try {
+                        // Try to upload to Supabase Storage first
+                        const fileExt = file.name.split('.').pop();
+                        const fileName = `${Math.random()}.${fileExt}`;
+                        const filePath = `chat-photos/${fileName}`;
+                        
+                        const { data: uploadData, error: uploadError } = await window.supabase.storage
+                            .from('photos')
+                            .upload(filePath, file);
+                        
+                        let photoUrl;
+                        
+                        if (uploadError) {
+                            console.log('Storage upload failed, using fallback:', uploadError);
+                            // Fallback to data URL
+                            photoUrl = await fileToDataURL(file);
+                        } else {
+                            // Get public URL from storage
+                            const { data: { publicUrl } } = window.supabase.storage
+                                .from('photos')
+                                .getPublicUrl(filePath);
+                            photoUrl = publicUrl;
+                        }
+                        
+                        // Create message with photo
+                        const newMessage = {
+                            user_id: currentUser.id,
+                            user_name: currentUser.name,
+                            user_initials: currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase(),
+                            content: 'Shared a photo',
+                            group_id: currentGroup,
+                            type: 'photo',
+                            photo_url: photoUrl
+                        };
+                        
+                        // Save to database
+                        await saveMessageToDatabase(newMessage);
+                        
+                        // Add to UI
+                        addMessageToChat({
+                            ...newMessage,
+                            id: 'temp-' + Date.now(),
+                            created_at: new Date().toISOString()
+                        }, true);
+                        
+                        photoUpload.value = '';
+                        showNotification('Photo shared successfully!', 'success');
+                    } catch (error) {
+                        console.error('Error uploading photo:', error);
+                        showNotification('Error uploading photo', 'error');
+                    }
                 }
             });
         }
         
-        // Add photo message to chat
-        function addPhotoMessageToChat(message) {
-            const chatMessages = document.getElementById('chatMessages');
-            if (!chatMessages) return;
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${message.user_id === currentUser.id ? 'own' : ''}`;
-            messageDiv.innerHTML = `
-                <div class="flex items-start space-x-3">
-                    <div class="user-avatar text-sm">${message.user_initials}</div>
-                    <div class="flex-1">
-                        <div class="flex items-center space-x-2 mb-1">
-                            <span class="font-semibold">${message.user_name} ${message.user_id === currentUser.id ? '(You)' : ''}</span>
-                            <span class="text-xs text-gray-500">${formatTime(message.created_at)}</span>
-                        </div>
-                        <p class="text-gray-700 mb-2">${message.content}</p>
-                        <div class="photo-item w-48">
-                            <img src="${message.photo_url}" alt="Shared photo">
-                        </div>
-                        <div class="flex items-center space-x-4 mt-2 text-sm text-gray-500">
-                            <button class="hover:text-blue-600">👍 0</button>
-                            <button class="hover:text-blue-600">Reply</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+        // Convert file to data URL (fallback when storage fails)
+        function fileToDataURL(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
         }
         
         // Group creation modal
@@ -1040,7 +1119,7 @@
                 }
             });
             
-            submitGroup.addEventListener('click', function() {
+            submitGroup.addEventListener('click', async function() {
                 const groupName = document.getElementById('groupName').value;
                 const groupDescription = document.getElementById('groupDescription').value;
                 const groupIcon = document.getElementById('groupIcon').value;
@@ -1050,27 +1129,51 @@
                     return;
                 }
                 
-                // Create new group
-                const groupId = groupName.toLowerCase().replace(/\s+/g, '-');
-                groups[groupId] = {
-                    name: groupName,
-                    description: groupDescription,
-                    icon: groupIcon,
-                    members: 1,
-                    createdBy: currentUser.id,
-                    createdAt: new Date().toISOString()
-                };
-                
-                // Update UI
-                renderGroups();
-                
-                // Close modal and reset form
-                createGroupModal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-                document.getElementById('groupName').value = '';
-                document.getElementById('groupDescription').value = '';
-                
-                showNotification(`Group "${groupName}" created successfully!`, 'success');
+                try {
+                    // Create group ID from name
+                    const groupId = groupName.toLowerCase().replace(/\s+/g, '-');
+                    
+                    // Save group to Supabase
+                    const { data, error } = await window.supabase
+                        .from('groups')
+                        .insert([{
+                            id: groupId,
+                            name: groupName,
+                            description: groupDescription,
+                            icon: groupIcon,
+                            members: 1,
+                            created_by: currentUser.id
+                        }]);
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    // Add to local groups
+                    groups[groupId] = {
+                        id: groupId,
+                        name: groupName,
+                        description: groupDescription,
+                        icon: groupIcon,
+                        members: 1,
+                        created_by: currentUser.id,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    // Update UI
+                    renderGroups();
+                    
+                    // Close modal and reset form
+                    createGroupModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                    document.getElementById('groupName').value = '';
+                    document.getElementById('groupDescription').value = '';
+                    
+                    showNotification(`Group "${groupName}" created successfully!`, 'success');
+                } catch (error) {
+                    console.error('Error creating group:', error);
+                    showNotification('Error creating group', 'error');
+                }
             });
         }
         
@@ -1086,11 +1189,55 @@
                 fileInput.type = 'file';
                 fileInput.accept = 'image/*';
                 
-                fileInput.addEventListener('change', function(e) {
+                fileInput.addEventListener('change', async function(e) {
                     if (e.target.files.length > 0) {
                         const file = e.target.files[0];
-                        addPhotoToGallery(file);
-                        showNotification('Photo uploaded to gallery!', 'success');
+                        
+                        try {
+                            let photoUrl;
+                            
+                            // Try Supabase Storage first
+                            const fileExt = file.name.split('.').pop();
+                            const fileName = `${Math.random()}.${fileExt}`;
+                            const filePath = `gallery/${fileName}`;
+                            
+                            const { data: uploadData, error: uploadError } = await window.supabase.storage
+                                .from('photos')
+                                .upload(filePath, file);
+                            
+                            if (uploadError) {
+                                console.log('Storage upload failed, using fallback:', uploadError);
+                                // Fallback to data URL
+                                photoUrl = await fileToDataURL(file);
+                            } else {
+                                // Get public URL from storage
+                                const { data: { publicUrl } } = window.supabase.storage
+                                    .from('photos')
+                                    .getPublicUrl(filePath);
+                                photoUrl = publicUrl;
+                            }
+                            
+                            // Save to gallery table
+                            const { error: dbError } = await window.supabase
+                                .from('gallery')
+                                .insert([{
+                                    user_id: currentUser.id,
+                                    user_name: currentUser.name,
+                                    photo_url: photoUrl,
+                                    description: 'Shared photo'
+                                }]);
+                            
+                            if (dbError) {
+                                throw dbError;
+                            }
+                            
+                            // Add to UI
+                            addPhotoToGallery(photoUrl);
+                            showNotification('Photo uploaded to gallery!', 'success');
+                        } catch (error) {
+                            console.error('Error uploading photo:', error);
+                            showNotification('Error uploading photo', 'error');
+                        }
                     }
                 });
                 
@@ -1111,21 +1258,60 @@
                 const photoGallery = document.getElementById('photoGallery');
                 if (!photoGallery) return;
                 
-                // In a real app, you would fetch from your database
-                // For now, we'll use mock data
+                // Show loading
+                photoGallery.innerHTML = `
+                    <div class="text-center col-span-full py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                        <p class="text-gray-500 mt-2">Loading gallery...</p>
+                    </div>
+                `;
+                
+                // Fetch from Supabase
+                const { data: photos, error } = await window.supabase
+                    .from('gallery')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) {
+                    throw error;
+                }
+                
+                // Render photos
+                photoGallery.innerHTML = '';
+                
+                if (photos && photos.length > 0) {
+                    photos.forEach(photo => {
+                        const photoItem = document.createElement('div');
+                        photoItem.className = 'photo-item';
+                        
+                        const img = document.createElement('img');
+                        img.src = photo.photo_url;
+                        img.alt = photo.description || 'Tunisia photo';
+                        
+                        photoItem.appendChild(img);
+                        photoGallery.appendChild(photoItem);
+                    });
+                } else {
+                    photoGallery.innerHTML = `
+                        <div class="text-center col-span-full py-8">
+                            <p class="text-gray-500">No photos yet. Be the first to share!</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+                
+                // Fallback to mock data
+                const photoGallery = document.getElementById('photoGallery');
+                photoGallery.innerHTML = '';
+                
                 const mockPhotos = [
                     'https://kimi-web-img.moonshot.cn/img/www.themediterraneantraveller.com/8359f16f4a898733c89d94e26bbec0eba7b9bd0.jpg',
                     'https://kimi-web-img.moonshot.cn/img/cdn.pixabay.com/d6688fe12820e13fc682f982a027156c0485fc55.jpg',
                     'https://kimi-web-img.moonshot.cn/img/toubkal-trekking.com/80d0d1d3b7b8dbb70279cdaf63f318fada387dbb.jpeg',
-                    'https://kimi-web-img.moonshot.cn/img/hf-s3.hotelfriend.com/a84e9b7382f3251856ee7e7056315268484f5351.jpg',
-                    'https://kimi-web-img.moonshot.cn/img/www.archidatum.com/0f7b0b0e3649cc138aa80f90aef4990322b555fe.jpg',
-                    'https://kimi-web-img.moonshot.cn/img/zwitafoods.com/8052807a20e10823d1c90d13c9451269a1ac2c31.png',
-                    'https://kimi-web-img.moonshot.cn/img/carthagemagazine.com/ccaf08898a71c143f5cc95e6d94840fa71bbeaf8.jpeg',
-                    'https://images.unsplash.com/photo-1531058020387-3be344556be6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80'
+                    'https://kimi-web-img.moonshot.cn/img/hf-s3.hotelfriend.com/a84e9b7382f3251856ee7e7056315268484f5351.jpg'
                 ];
                 
-                // Render photos
-                photoGallery.innerHTML = '';
                 mockPhotos.forEach(photoUrl => {
                     const photoItem = document.createElement('div');
                     photoItem.className = 'photo-item';
@@ -1137,22 +1323,26 @@
                     photoItem.appendChild(img);
                     photoGallery.appendChild(photoItem);
                 });
-            } catch (error) {
-                console.error('Error loading gallery:', error);
-                showNotification('Error loading gallery', 'error');
+                
+                showNotification('Using demo gallery data', 'info');
             }
         }
         
         // Add photo to gallery
-        function addPhotoToGallery(file) {
+        function addPhotoToGallery(photoUrl) {
             const photoGallery = document.getElementById('photoGallery');
             if (!photoGallery) return;
+            
+            // Clear "no photos" message if it exists
+            if (photoGallery.innerHTML.includes('No photos yet')) {
+                photoGallery.innerHTML = '';
+            }
             
             const photoItem = document.createElement('div');
             photoItem.className = 'photo-item';
             
             const img = document.createElement('img');
-            img.src = URL.createObjectURL(file);
+            img.src = photoUrl;
             img.alt = 'Uploaded photo';
             
             photoItem.appendChild(img);
@@ -1165,22 +1355,37 @@
             
             if (!upgradePremiumBtn) return;
             
-            upgradePremiumBtn.addEventListener('click', function() {
+            upgradePremiumBtn.addEventListener('click', async function() {
                 if (currentUser.is_premium) {
                     showNotification('You already have premium access!', 'info');
                     return;
                 }
                 
-                // Simulate premium upgrade
-                currentUser.is_premium = true;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
-                showNotification('Premium upgrade successful! Welcome to premium membership!', 'success');
-                
-                // Redirect to premium page after a delay
-                setTimeout(() => {
-                    window.location.href = 'premium.html';
-                }, 2000);
+                try {
+                    // Update user profile in Supabase
+                    const { error } = await window.supabase
+                        .from('profiles')
+                        .update({ is_premium: true })
+                        .eq('id', currentUser.id);
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    // Update local user data
+                    currentUser.is_premium = true;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    showNotification('Premium upgrade successful! Welcome to premium membership!', 'success');
+                    
+                    // Redirect to premium page after a delay
+                    setTimeout(() => {
+                        window.location.href = 'premium.html';
+                    }, 2000);
+                } catch (error) {
+                    console.error('Error upgrading to premium:', error);
+                    showNotification('Error upgrading to premium', 'error');
+                }
             });
         }
         
